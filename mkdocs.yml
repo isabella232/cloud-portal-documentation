@@ -1,0 +1,7 @@
+site_name: EMBL-EBI Cloud Portal Documentation's
+pages:
+
+- Home: index.md
+- Securing Credentials: securing_credentials.md
+- Mkdocs: mkdocs.md
+theme: readthedocs
