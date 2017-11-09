@@ -1,7 +1,10 @@
 # Packaging Applications for the EBI Cloud Portal
 
 ---
-*_Disclaimer_* _`This document is still a work in progress, as the EBI Cloud Portal itself is still in very active development. We’re trying to keep this document as in sync as possible with the application. Any comment or feedback is very appreciated!`_
+*_Disclaimer_* `This document is still a work in progress.`  
+` The EBI Cloud Portal itself is still in very active development.`  
+` We’re trying to keep this document as in sync as possible with the application.`  
+`Any comment or feedback is very appreciated!`
 
 ---
 
