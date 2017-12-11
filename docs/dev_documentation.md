@@ -16,41 +16,41 @@ As previously mentioned, the deployment capabilities of the EBI Cloud Portal are
 
 ### Terraform
 
-Terraform allows to define the infrastructure an application requires to run in an easily understandable declarative templates written in HCL (HashiCorp Configuration Language). VMs, networks, firewalls and storage volumes can easily be defined in a single or multiple files, leaving to Terraform the burden to understand dependencies between all these resources and the order in which they must be created. Due to the intrinsic differences existing between different cloud providers, Terraform is currently unable to provide a single template that is then mapped onto different cloud-specific templates. The person in charge of packaging applications will need to define a Terraform for each cloud provider he or she intends to support the application for. However, this usually comes down to a very reasonable mapping exercise between each cloud provider objects names. Albeit this may be seen as a downside of Terraform, on the other hand allows to exploit many of the vendor-specific features and services that wouldn't otherwise be possible to access. At the time of writing, Terraform supports the major public cloud providers (AWS, Google Cloud, Azure, Rackspace, and many [more](https://www.terraform.io/docs/providers/index.html)) as well as OpenStack. There are (as always) other cloud orchestrators that are able to deliver similar functionalities, but they are usually bound to a single platform (e.g. AWS CloudFormation or OpenStack Heat).
+Terraform allows defining the infrastructure an application requires to run in an easily understandable declarative template written in HCL (HashiCorp Configuration Language). VMs, networks, firewalls and storage volumes can easily be defined in a single or multiple files, leaving to Terraform the burden to understand dependencies between all these resources and the order in which they must be created. Due to the intrinsic differences existing between different cloud providers, Terraform is currently unable to provide a single template that is then mapped onto different cloud-specific templates. The person in charge of packaging applications will need to define a Terraform for each cloud provider he or she intends to support the application for. However, this usually comes down to a very reasonable mapping exercise between each cloud provider objects names. Albeit this may be seen as a downside of Terraform, on the other hand, allows exploiting many of the vendor-specific features and services that wouldn't otherwise be possible to access. At the time of writing, Terraform supports the major public cloud providers (AWS, Google Cloud, Azure, Rackspace, and many [more](https://www.terraform.io/docs/providers/index.html)) as well as OpenStack. There are (as always) other cloud orchestrators that are able to deliver similar functionalities, but they are usually bound to a single platform (e.g. AWS CloudFormation or OpenStack Heat).
 
 #### **The Terraform lifecycle**
 
-Terraform is based on a declarative language, which allows you to define the desired layout of the infrastructure you want to provision in the cloud. The state of each Terraform deployment is tracked in what is called a **state **file, which is basically a list of all the resources Terraform has deployed in the previous run. This behaviour allows the modification of a deployment editing the template as well the redeployment of resources that are no more available. The life-cycle of a Terraform deployment can be divided in mainly three steps: planned, deployed and destroyed.
+Terraform is based on a declarative language, which allows you to define the desired layout of the infrastructure you want to provision in the cloud. The state of each Terraform deployment is tracked in what is called a **state **file, which is basically a list of all the resources Terraform has deployed in the previous run. This behaviour allows the modification of a deployment editing the template as well the redeployment of resources that are no more available. The life-cycle of a Terraform deployment can be divided into mainly three steps: planned, deployed and destroyed.
 
 #### **Planning**
 
-Depending on the initial state being an empty or a partially provisioned environment, the operations Terraform will need to perform will be different. For this reason, the software allows to list all the tasks that will be carried out in the following run, comparing the desired state defined in the template and the state file and coming up with a *plan* that you can revise. This is obtained simply running terraform plan from within the folder containing the terraform template. Keep in mind that if the state file reports that some components are already deployed, Terraform will check if it’s still in place and adjust the plan, if need.
+Depending on the initial state being an empty or a partially provisioned environment, the operations Terraform will need to perform will be different. For this reason, the software allows listing all the tasks that will be carried out in the following run, comparing the desired state defined in the template and the state file and coming up with a *plan* that you can revise. This is obtained simply running terraform plan from within the folder containing the terraform template. Keep in mind that if the state file reports that some components are already deployed, Terraform will check if it’s still in place and adjust the plan, if need.
 
 #### **Deploying ****_(a.k.a. applying)_**
 
-Applying is the operation that deploys a Terraform template to a cloud provider. Terraform will read the template and the state file (if any) figuring out which operations must be carried out to reach convergence, and then start applying them. This process may take a while, depending on the extent of the required changes and their mutual dependencies, but can usually greatly speeded up increasing the *parallelism*, the number of objects will act on at the same time. Once the deployment is complete, Terraform will output any defined output in the template, and exit.
+Applying is the operation that deploys a Terraform template to a cloud provider. Terraform will read the template and the state file (if any) figuring out which operations must be carried out to reach convergence, and then start applying them. This process may take a while, depending on the extent of the required changes and their mutual dependencies, but can usually greatly speeded up increasing the *parallelism*, the number of objects will act on at the same time. Once the deployment is complete, Terraform will output any defined output in the template and exit.
 
 #### **Destroying**
 
-After his honorable service, your infrastructure is ready to be teared down or destroyed, following Terraform’s nomenclature. Not violating dependencies is an important factor to consider here, as this might cause errors in the destroy process (i.e. removing a subnetwork while instances are still hooked into it). Terraform wraps all this into an easy to use single command.
+After his honourable service, your infrastructure is ready to be torn down or destroyed, following Terraform’s nomenclature. Not violating dependencies is an important factor to consider here, as this might cause errors in the destroy process (i.e. removing a subnetwork while instances are still hooked into it). Terraform wraps all this into an easy to use a single command.
 
 ### Ansible
 
-While Terraform provides some features to configure (or *localise*) VMs after they’re launched, this is limited to uploading bash scripts or run single command through SSH. Configuring and orchestrating complex deployments do require a fully fledged configuration management system. Many different software are available to solve this problem, each of them having its own strong and weak points. We've eventually chosen Ansible as the configuration management system for the EBI Portal deployments due to it’s very easy learning curve and to fact it doesn't require any agent on the VMs, since it only needs a SSH connection to work. On top of that, it’s very easy YAML-based syntax can usually be learned and put in use in a matter of hours, not days.
+While Terraform provides some features to configure (or *localise*) VMs after they’re launched, this is limited to uploading bash scripts or a run single command through SSH. Configuring and orchestrating complex deployments do require a fully fledged configuration management system. Countless different software are available to solve this problem, each of them having its own strong and weak points. We've eventually chosen Ansible as the configuration management system for the EBI Portal deployments due to its very easy learning curve and to the fact it doesn't require any agent on the VMs since it only needs an SSH connection to work. On top of that, it’s very easy YAML-based syntax can usually be learned and put into use in a matter of hours, not days.
 
-After a set of resources is created by Terraform, Ansible can take over by applying all the required configuration changes (i.e. install packages or update configuration files). Ansible simplifies the process with a small trade off: It is good enough to manage and maintain simple to moderately complex infrastructures because it employs declarative approach to configuration statements. However, it’s important to note that the choice of supporting only Ansible-based deployments from the portal doesn't imply that applications themselves are forced to use this tool: it’s in fact quite easy to use Ansible to bootstrap a Salt server (or a Puppet master) that is then used by other VMs to configure themselves.
+After a set of resources is created by Terraform, Ansible can take over by applying all the required configuration changes (i.e. install packages or update configuration files). Ansible simplifies the process with a small trade-off: It is good enough to manage and maintain simple to moderately complex infrastructures because it employs a declarative approach to configuration statements. However, it’s important to note that the choice of supporting only Ansible-based deployments from the portal doesn't imply that applications themselves are forced to use this tool: it’s in fact quite easy to use Ansible to bootstrap a Salt server (or a Puppet master) that is then used by other VMs to configure themselves.
 
 A final comment: from version 2.0, Ansible started offering built-in orchestration features that can be used to create many of the components Terraform currently manages in the EBI Cloud portal deployments. However, at the time of writing the support for most of the cloud providers other than AWS is scant if compared to the set of components Terraform can manage. For this reason, we’re still advocating the use of Terraform to provision the infrastructure when packaging applications for the EBI Cloud Portal.
 
 ### Linking Terraform and Ansible
 
-Terraform outputs the final state of the deployment in a state file. However, Ansible relies on an inventory file to know to ip addresses of the VMs it needs to talk with and their logical grouping. To bridge this gap, the portal supports [terraform-inventory](https://github.com/adammck/terraform-inventory), a small GO app that is able to parse a Terraform state file and output its content as an Ansible inventory.
+Terraform outputs the final state of the deployment in a state file. However, Ansible relies on an inventory file to know to IP addresses of the VMs it needs to talk with and their logical grouping. To bridge this gap, the portal supports [terraform-inventory](https://github.com/adammck/terraform-inventory), a small GO app that is able to parse a Terraform state file and output its content as an Ansible inventory.
 
 ## The EBI Cloud Portal packaging structure
 
 #### **Cloud providers**
 
-The Portal relies on a homogeneous labelling of Cloud Providers to match, for example, deployments with credentials and the cloud-specific code that must be executed each time. We strongly suggest to follow the labelling schema below to take full advantage of all the features the portal offers.
+The Portal relies on a homogeneous labelling of Cloud Providers to match, for example, deployments with credentials and the cloud-specific code that must be executed each time. We strongly suggest following the labelling schema below to take full advantage of all the features the portal offers.
 
 |Cloud Provider          |Label|
 |---|---|
@@ -88,13 +88,13 @@ Here’s the general structure of a repository hosting a packaged application fo
   └ volume_parser.py  
 
 
-As you can see, there’s a manifest.json file at the root of it, and then folders storing code for each cloud provider. In this particular repo, the Ansible code is shared among the cloud providers via symlinks, but this is not a strict requirement. Being fully honest, there’s hardly strict requirements at all in the way the Portal consumes applications! Let’s have a more in-depth look, then!
+As you can see, there’s a file `manifest.json` at the root of it, and then folders storing code for each cloud provider. In this particular repo, the Ansible code is shared among the cloud providers via symlinks, but this is not a strict requirement. Being fully honest, there’s hardly strict requirements at all in the way the Portal consumes applications! Let’s have a more in-depth look, then!
 
 #### **Where to store your code**
 
 The code defining an application for the EBI Cloud Portal must be tracked within a git repository publicly clonable over the internet. This is a fundamental requirement, as the way the Portal imports applications in its own registry is cloning such repositories.
 
-Out the many ways we may have supported this, we eventually chosen git repos as this allows to easily to track code changes, keep dev and production deployments separated in different branches, and provides a well established approach to final users to customise their own deployments forking the original repository.
+Out the many ways, we may have supported this, we eventually chose git repository as this allows to easy to track code changes, keep dev and production deployments separated in different branches, and provides a well-established approach to final users to customize their own deployments forking the original repository.
 
 #### **The manifest file**
 
@@ -123,17 +123,17 @@ Many of the fields are self-explanatory, but let’s walk through them anyway:
 - `contactEmail` The email address of the person or group maintaining the application
 - `about` A (*very*) brief description of what the application does
 - `version` The current version of the application
-- `inputs` An array of strings defining the inputs required by the application, in this particular case the number of nodes to be deployed in our OpenLava cluster. Input fields will be shown by the Portal to allow users to customize the deployment behavior. All the values will then be injected as environment variables when deploying, making them accessible to Terraform and Ansible.
+- `inputs` An array of strings defining the inputs required by the application, in this particular case the number of nodes to be deployed in our OpenLava cluster. Input fields will be shown by the Portal to allow users to customize the deployment behaviour. All the values will then be injected as environment variables when deploying, making them accessible to Terraform and Ansible.
 
-Any `input` name defined in the manifest will be injected in the environment as `TF_VAR_input`. Since Terraform automatically imports environment variables with the `TF_VAR_` prefix and maps them to its own internal variables (removing the prefix), this allows to easily wire up the deployment with user inputs. Using our OpenLava deployment as an example, the portal will show an input field named `nodes`, and inject the value entered by the user in the environment variable `TF_VAR_nodes`, that is the read by Terraform and mapped to the its internal variable `nodes`. Should an Ansible playbook need to access the same input value, it must look for the `TF_VAR_input` environment variable, as no automatic mapping is available in Ansible.
+Any `input` name defined in the manifest will be injected into the environment as `TF_VAR_input`. Since Terraform automatically imports environment variables with the `TF_VAR_` prefix and maps them to its own internal variables (removing the prefix), this allows to easily wire up the deployment with user inputs. Using our OpenLava deployment as an example, the portal will show an input field named `nodes`, and inject the value entered by the user in the environment variable `TF_VAR_nodes`, that is the read by Terraform and mapped to its internal variable `nodes`. Should an Ansible playbook need to access the same input value, it must look for the `TF_VAR_input` environment variable, as no automatic mapping is available in Ansible.
 
 **outputs**
 
-A very common use case when deploying infrastructure to the cloud is the need to show back to the user some information resulting from the deployment itself, as for example the external ip address of a batch system master node. The portal will scan the output of the Terraform state file looking for the strings defined in this JSON array, and display the result to the user.
+A very common use case when deploying infrastructure to the cloud is the need to show back to the user some information resulting from the deployment itself, as for example the external IP address of a batch system master node. The portal will scan the output of the Terraform state file looking for the strings defined in this JSON array, and display the result to the user.
 
 **volumes**
 
-Sometimes, a deployment requires to attach a previously defined volume. For example, some data may be staged in via a GridFTP server on a particular volume, that is then re-attached to an NFS server serving a batch system. The EBI Cloud Portal allows to completely separate the volumes lifecycle from the lifecycle of applications. Adding a volume name (i.e. `DATA_DISK_ID` in our previous example) to volumes automatically displays on the deployment card a drop-down menu listing all the volumes deployed through the portal. The id of the selected volume (as provided by the cloud provider, not the portal internal id) is then injected into the deployment process as an environment variable (i.e. `TF_VAR_DATA_DISK_ID` in this case).
+Sometimes, a deployment requires attaching a previously defined volume. For example, some data may be staged in via a GridFTP server on a particular volume, that is then re-attached to an NFS server serving a batch system. The EBI Cloud Portal allows to completely separate the volumes lifecycle from the lifecycle of applications. Adding a volume name (i.e. `DATA_DISK_ID` in our previous example) to volumes automatically displays on the deployment card a drop-down menu listing all the volumes deployed through the portal. The id of the selected volume (as provided by the cloud provider, not the portal internal id) is then injected into the deployment process as an environment variable (i.e. `TF_VAR_DATA_DISK_ID` in this case).
 
 **cloudProviders**
 
@@ -141,21 +141,21 @@ This is where the magic happens! This JSON array contains a dictionary (an hash 
 
     { "cloudProvider":"AWS", "path":"aws", "inputs": [ "vpc_id" ] }
 
-cloudProvider specifies which cloud provider the dictionary is providing information for, path is the path to the folder where the code to deploy to the given cloud provider is located, while inputs is an optional JSON array defining cloud-specific inputs (in our example, the `vpc_id` to use on AWS).
+`cloudProvider` specifies which cloud provider the dictionary is providing information for, `path` is the path to the folder where the code to deploy to the given cloud provider is located, while inputs is an optional JSON array defining cloud-specific inputs (in our example, the `vpc_id` to use on AWS).
 
-The cloudProvider value is also used to pick the right credentials when deploying. At the time of writing, the portal simply looks among the defined credentials and picks the one tagged with the same string (`AWS` in this case), so it is important to follow the labelling schema previously mentioned.
+The `cloudProvider` value is also used to pick the right credentials when deploying. At the time of writing, the portal simply looks among the defined credentials and picks the one tagged with the same string (`AWS` in this case), so it is important to follow the labelling schema previously mentioned.
 
 #### **How to organise your code in the git repository**
 
 ##### *Separate each cloud provider*
 
-As you've learned in section about the manifest file, the code to deal with each cloud provider must be kept in a separate folder. Even though the naming of these folders is currently left to each individual author, we suggest to stick to the following schema in the "**Cloud providers**" section above.
+As you've learned in the section about the manifest file, the code to deal with each cloud provider must be kept in a separate folder. Even though the naming of these folders is currently left to each individual author, we suggest sticking to the following schema in the "**Cloud providers**" section above.
 
 Following this convention ensures that the repository will be more easily understood by other developers and make the credential matching more reliable.
 
 ##### *Separate Terraform and Ansible*
 
-As for the cloud providers, we suggest to keep separate the Terraform and Ansible codebases as this improves much more the readability and maintainability of the repository. Also, it allows for some tricks like sharing the same Ansible code among different cloud providers (symlinks are good!) or use git [submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to share code between several deployments.
+As for the cloud providers, we suggest keeping separate the Terraform and Ansible codebases as this improves much more the readability and maintainability of the repository. Also, it allows for some tricks like sharing the same Ansible code among different cloud providers (symlinks are good!) or using git [submodules](https://git-scm.com/book/en/v2/Git-Tools-Submodules) to share code between several deployments.
 
 ##### *Deployment scripts*
 
@@ -219,7 +219,7 @@ export TF_VAR_name="$(awk -v var="$PORTAL_DEPLOYMENT_REFERENCE" 'BEGIN {print to
 export KEY_PATH="${HOME}/.ssh/demo-key.pem"
 ```
 
-This initial block defines the [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) for the script (`#!/usr/bin/env bash`) and forces the bash script to exit immediately if any command exits with a non-zero status (`set -e`). Then, it exports two environment variables: `TF_VAR_name` and `KEY_PATH`. The first will automatically be picked up by Terraform and mapped to its internal variable name, eventually causing each resource to be named after the deployment ID (more on this in the next session), while the second allows to define the path to the SSH key to be used to access the VMs.
+This initial block defines the [shebang](https://en.wikipedia.org/wiki/Shebang_(Unix)) for the script (`#!/usr/bin/env bash`) and forces the bash script to exit immediately if any command exits with a non-zero status (`set -e`). Then, it exports two environment variables: `TF_VAR_name` and `KEY_PATH`. The first will automatically be picked up by Terraform and mapped to its internal variable name, eventually causing each resource to be named after the deployment ID (more on this in the next session), while the second allows defining the path to the SSH key to be used to access the VMs.
 
 ```
 # Launch provisioning of the VM
@@ -244,13 +244,13 @@ TF_STATE=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfst
 eval "$(ssh-agent -k)"
 ```
 
-This block deals with everything that is needed by Ansible to work. When the Portal launches the deployment script, a new [ssh-agent](https://en.wikipedia.org/wiki/Ssh-agent) is spawned and the SSH key to access the VMs is pre-loaded. Then, ansible-galaxy is used to pull all the requirements for the playbook to run (keep in mind that only public repos will be clonable). Next step, invoking Ansible itself. It’s not a very plain invocation, though:
+This block deals with everything that is needed by Ansible to work. When the Portal launches the deployment script, a new [ssh-agent](https://en.wikipedia.org/wiki/Ssh-agent) is spawned and the SSH key to access the VMs is pre-loaded. Then, ansible-galaxy is used to pull all the requirements for the playbook to run (keep in mind that only public repositories will be clonable). Next step, invoking Ansible itself. It’s not a very plain invocation, though:
 
 * prefixing the command with `TF_STATE=...` tells terraform-inventory where to look for the Terraform state file
 
-* `-i /usr/local/bin/terraform-inventory` tells Ansible to use terraform-inventory to create the inventory on the flight. Keep in mind that Ansible supports as arguments of the -i flag both text files containing an inventory and *executables returning an inventory.*
+* `-i /usr/local/bin/terraform-inventory` tells Ansible to use terraform-inventory to create the inventory on the flight. Keep in mind that Ansible supports as arguments of the `-i` flag both text files containing an inventory and *executables returning an inventory.*
 
-* `-u centos -b` force Ansible to use the user centos over ssh and to execute commands with sudo (b = [become](http://docs.ansible.com/ansible/become.html))
+* `-u centos -b` force Ansible to use the user centos over ssh and to execute commands with `sudo` (b = [become](http://docs.ansible.com/ansible/become.html))
 
 The last step is to kill the previously spawned ssh-agent. Deployment (hopefully) done!
 
@@ -291,7 +291,7 @@ terraform show $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terrafor
 
 ##### *Auxiliary scripts*
 
-Depending on the particular needs of each application, you might need auxiliary scripts to carry out the deployment successfully. These can currently been added in any folder within the repo and invoked via the bash scripts. We suggest to place the outputs of these commands (if any) in the deployment folder.
+Depending on the particular needs of each application, you might need auxiliary scripts to carry out the deployment successfully. These can currently be added to any folder within the repo and invoked via the bash scripts. We suggest placing the outputs of these commands (if any) in the deployment folder.
 
 #### **Cloud credentials**
 
@@ -305,7 +305,7 @@ Each set of credentials is defined in the portal by three fields:
 
 	
 
-* `Credentials fields`	This field contains a JSON array defining the credentials to be injected in the environment to allow Terraform to authenticate with the cloud provider. Here’s an example of how an OpenStack array looks like:
+* `Credentials fields`	This field contains a JSON array defining the credentials to be injected into the environment to allow Terraform to authenticate with the cloud provider. Here’s an example of how an OpenStack array looks like:
 
 ```
 [
@@ -320,7 +320,7 @@ One caveat: since this code will be read by a Java appliance, remember to escape
 
 #### **Other configurations (moving towards a profile concept)**
 
-Sometimes injecting credentials are not enough. For example, GCP has the concept of projects, which are separate compartment in which a single account can be divided into. Terraform needs to know to which compartment resources should be deployed, and this is usually done specifying the project in the [provider](https://www.terraform.io/docs/providers/google/). As the packaged application must be able to deploy itself in any project, this should be provided as an input. However, inputs must be typed in each time the application is deployed! How can we fix this? Well, here’s the trick: Terraform can also read the project from a dedicated environment variable: `GOOGLE_PROJECT`. If we are planning to deploy always to the same project, we can simply add another variable to the credentials JSON array defining the `GOOGLE_PROJECT` environment variable, so that it will always be injected when deploying. A whole range of similar problems can be solved via this approach, i.e. feed the id of a shared AWS VPC to the deployments. However, this is currently limited by the fact that we only support a single set of credentials for each cloud provider. Once this limitation will be removed, we’ll revisit the concept of credential sets, possibly moving towards *cloud profiles*.
+Sometimes injecting credentials are not enough. For example, GCP has the concept of projects, which are a separate compartment in which a single account can be divided into. Terraform needs to know to which compartment resources should be deployed, and this is usually done specifying the project in the [provider](https://www.terraform.io/docs/providers/google/). As the packaged application must be able to deploy itself in any project, this should be provided as an input. However, inputs must be typed in, each time the application is deployed! How can we fix this? Well, here’s the trick: Terraform can also read the project from a dedicated environment variable: `GOOGLE_PROJECT`. If we are planning to deploy always to the same project, we can simply add another variable to the credentials JSON array defining the `GOOGLE_PROJECT` environment variable, so that it will always be injected when deploying. A whole range of similar problems can be solved via this approach, i.e. feed the id of a shared AWS VPC to the deployments. However, this is currently limited by the fact that we only support a single set of credentials for each cloud provider. Once this limitation will be removed, we’ll revisit the concept of credential sets, possibly moving towards *cloud profiles*.
 
 #### **Testing locally**
 
@@ -359,7 +359,7 @@ Finally, for GCP you’ll need to download a JSON file from the [Google Develope
 
 2. The API Manager view should be selected, click on "Credentials" on the left, then "Create credentials", and finally "Service account key".
 
-3. Select "Compute Engine default service account" in the "Service account" dropdown, and select "JSON" as the key type.
+3. Select "Compute Engine default service account" in the "Service account" drop-down, and select "JSON" as the key type.
 
 4. Clicking "Create" will download your credentials.
 
@@ -380,19 +380,19 @@ Before deployments can be made, a user first has to configure portal repositorie
 
 Steps:
 
-1. User logs in to EBI Cloud Portal.
+1. User logs into EBI Cloud Portal.
 
-2. On the Dashboard user clicks on "Search Repositories" or selects “Repository” from the left pane menu.
+2. On the Dashboard, the user clicks on "Search Repositories" or selects “Repository” from the left pane menu.
 
 3. Click on the  "+" button on the right side of the screen.
 
-4. On the "Add application screen" user pastes public repo url and clicks “Add”.
+4. On the "Add application screen" user pastes public repo URL and clicks “Add”.
 
 5. The application is added to your repository.
 
 ### The deployment process overview
 
-So, eventually, what are the steps the portal takes every time it needs to deploy or destroy an application? And, how the deploy.sh and destroy.sh scripts links into that?
+So, eventually, what are the steps the portal takes every time it needs to deploy or destroy an application? And, how the `deploy.sh` and `destroy.sh` scripts links into that?
 
 ### Deployment
 
@@ -402,11 +402,11 @@ Here’s a step-by-step list of every operation the cloud portal performs to dep
 
 - The selected cloud provider is matched with the credentials in the user profile. If a match is found, they are injected in the deployment environment. If not match is found, the process exits with an error that is reported back to the web app.
 
-- Input variables and the volume ids, if present, are injected in the environment.
+- Input variables and the volume IDs, if present, are injected into the environment.
 
 - The cloud-specific deploy.sh script is executed (e.g. /root/gcp/deploy.sh).
 
-    Internally, the deploy.sh script executes these steps:
+    Internally, the `deploy.sh` script executes these steps:
 
     1. Runs Terraform to provision the resources according to the pre-defined template
 
@@ -414,7 +414,7 @@ Here’s a step-by-step list of every operation the cloud portal performs to dep
 
 - If the deployment script exits with a non-zero status (it fails), the information is sent back to the web app and the process stops. If the deployment script exits with a zero, the process continues
 
-- Executes the cloud-specific state.sh script, and looks for the outputs defined in the manifest (if any)
+- Executes the cloud-specific `state.sh` script, and looks for the outputs defined in the manifest (if any)
 
 - Reports the outputs (if any) back to the web app
 
@@ -426,13 +426,13 @@ Again, here’s the list!
 
 * The user clicks the Destroy button on the web application. A request to the API is fired to tear down the deployment
 
-* Credentials for the cloud provider hosting the deployment are injected in the environment. If not match is found among the credentials in the user profile, the process exits with an error that is reported back to the web app.
+* Credentials for the cloud provider hosting the deployment are injected into the environment. If not match is found among the credentials into the user profile, the process exits with an error that is reported back to the web app.
 
-* Input variables and the volume ids, if present, are injected in the environment.
+* Input variables and the volume IDs, if present, are injected into the environment.
 
-* The cloud-specific destroy.sh script is executed
+* The cloud-specific `destroy.sh` script is executed
 
-    Internally, the destroy.sh script executes a single step:
+    Internally, the `destroy.sh` script executes a single step:
 
     1. Runs Terraform to destroy  the resources, as they’re reported in the state file
 
