@@ -20,7 +20,7 @@ A minimal Profile set up include this steps:
 
 Each cloud provider requires a set of **cloud credentials**.  
 **Personal credentials** can be set up following the instructions for the specific cloud provider.  
-It also possible to use **shared credentials**, in this case the values will not be visible or editable.
+It also possible to use **shared credentials**, in this case, the values will not be visible or editable.
 
 ### Amazon Web Service (AWS)
 Add your `Cloud Credentials` in this form:
@@ -75,7 +75,7 @@ You can download the `OpenStack RC file` file from the OpenStack dashboard as an
 ### Google Cloud Platform (GCP)
 
 Authenticating with Google Cloud services requires the set up of The [`GOOGLE_CREDENTIALS `](https://developers.google.com/identity/protocols/application-default-credentials#howtheywork)
-variable, which can also contains the path of a file to obtain credentials from.
+variable, which can also contain the path of a file to obtain credentials from.
 
 The `GOOGLE_CREDENTIALS` is available in a JSON file.
 
@@ -97,38 +97,38 @@ Once you have your credentials you can add them to `Cloud Credentials` in this f
 ## Deployment parameters
 
 `Deployment parameters` represent a set of inputs specific that are related to the cloud provider and eventually to a specific application.  
-In general they provide information about the shared instances that you can have in place in your cloud provider, or just information that you prefer to set up just the first time and avoid to repeat every time you deploy the instance.
+In general, they provide information about the shared instances that you can have in place in your cloud provider or just information that you prefer to set up just the first time and avoid to repeat every time you deploy the instance.
 
 The deployment parameters required by an appliance are expressed in the documentation page of the git repository of the same appliance.
 
-For your convenience you can use a single `deployment paramenter` configuration for different appliances:  it will make use only of the share inputs ignoring the ones that are not relevant.  
+For your convenience you can use a single `deployment parameter` configuration for different appliances:  it will make use only of the share inputs ignoring the ones that are not relevant.  
 A deployment parameter can also be used to overwrite any of the variables defined in the `terraform.tfvars` file even when it is not reported as input in the `manifest` file.  
 
 * Note: The current version of the portal is requiring to include the parameters of all the cloud providers, in the deployment configurations. This behaviour will change soon, for the moment please enter a random value for the parameters that are not necessary for your cloud provider.
 
 ## Configuration
 
-Configurations represent a way to link a Cloud Credential with a Deployment Parameter and a SSH public key.  
-The use of a configuration simplify the deployment of the application, allowing to store and reuse the specified parameters.  
+Configurations represent a way to link a Cloud Credential with a Deployment Parameter and an SSH public key.  
+The use of a configuration simplifies the deployment of the application, allowing to store and reuse the specified parameters.  
 Specify a new configuration is very easy:
 
  - click on the `+`  button
- - assign assign a name of your choose,
+ - assign a name of your choice,
  - choose one of the `Cloud Provider` that you have previously defined,
  - choose one of the `Deployment parameters` that you have previously defined,
  - (optionally) add a public ssh key
 
 # Inputs
 
-`Inputs` parameters represent a set of parameters that are meant to more volatile than the `Deployment paramenters` or just can not be determined in advance.  
+`Inputs` parameters represent a set of parameters that are meant to more volatile than the `Deployment parameters` or just cannot be determined in advance.  
 They are related to the specific application, and to the cloud provider and eventually.  
-They are expressed in the documentation page of the git repository of the same appliance.
+They are expressed on the documentation page of the git repository of the same appliance.
 
-You can also avoid to type the inputs and it will use the defaults (but avoid to click with mouse on them, otherwise it will see as a void instead the default).
+You can also avoid typing the inputs and it will use the defaults (but avoid to click with the mouse on them, otherwise it will see as a void instead of the default).
 
 # Add a new Application Repository
 
-Adding a new Application is extremely simple you just need to know the URL of the git repository,for example you can add this address: `https://github.com/EMBL-EBI-TSI/cpa-instance`
+Adding a new Application is extremely simple you just need to know the URL of the git repository, for example, you can add this address: `https://github.com/EMBL-EBI-TSI/cpa-instance`
 
 - From the global menu click [`Application Repository`](https://portal.tsi.ebi.ac.uk/repository)
 - click on the `+`  button
@@ -136,5 +136,5 @@ Adding a new Application is extremely simple you just need to know the URL of th
 
 ## Repository compliance
 
-The `EMBL-EBI Cloud Portal` requires the presence of well-formed `manifest.json` file, in the `root directory` of each git repository to be considered compliant, and therefore been accepted as a new application.  
+The `EMBL-EBI Cloud Portal` requires the presence of well-formed `manifest.json` file, in the `root directory` of each git repository, to be considered compliant and therefore be accepted as a new application.  
 The `manifest.json` file contains simple data structures, that expose the application details to the `EMBL-EBI Cloud Portal`.
