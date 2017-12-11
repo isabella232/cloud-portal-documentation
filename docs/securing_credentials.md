@@ -1,8 +1,8 @@
 # Avoid security credentials on git public repository
 
 AWS accounts, passwords and other sensitive information are a valuable target: outside attackers are continuously scraping GitHub for credentials embedded in the code.  
-Security credential leaks expose sensitive data, resources utilization on your costs, or sabotage to your infrastructure.
-It is therefore essential protecting developers from releasing potentially harmful secrets on GitHub.
+Security credential leaks expose sensitive data, resources utilization on your costs, or details of your infrastructure that could lead to sabotage.
+It is therefore essential to protect developers from releasing potentially harmful secrets on GitHub.
 
 For our users, we strongly endorse the use of tools for automatic detection.
 
@@ -10,7 +10,7 @@ For our users, we strongly endorse the use of tools for automatic detection.
 
 We found a helpful tool, preventing you from adding secrets to your Git repositories: [git-secrets](https://github.com/awslabs/git-secrets), which allows you to create hooks for your local repositories.
 
-The tool causes a commit fails, for every commit containing (detected) security credentials. It requires being configured for each local repository that you want to protect.
+The tool causes a commit fails, for every commit containing (detected) security credentials. It requires configuration for each local repository that you want to protect.
 
 It is possible to integrate its use in a CI system, detecting accidental commits, but this strategy will expose your secret.  
 For this reason, we suggest to use it just as second layer protection (in the unfortunate case a developer forget to protect a local repository).
@@ -33,7 +33,7 @@ brew install git-secrets
 
 ### Configuration
 
-It is mandatory to install the git hooks for **every repo** that you wish to use with git secrets --install.
+It is mandatory to install the git hooks for **every repo** that you wish to use with `git secrets --install`.
 
 Here's a quick example of how to ensure a git repository is scanned for secrets on each commit:
 
