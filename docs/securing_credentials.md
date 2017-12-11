@@ -1,19 +1,19 @@
 # Avoid security credentials on git public repository
 
-AWS accounts, passwords and other sensitive information are a valuable target: outside attackers are continuously scraping GitHub for credentials embedded in code.  
+AWS accounts, passwords and other sensitive information are a valuable target: outside attackers are continuously scraping GitHub for credentials embedded in the code.  
 Security credential leaks expose sensitive data, resources utilization on your costs, or sabotage to your infrastructure.
 It is therefore essential protecting developers from releasing potentially harmful secrets on GitHub.
 
-For our user we strongly endorse the use of tools for automatic detection.
+For our users, we strongly endorse the use of tools for automatic detection.
 
 ## git-secrets
 
 We found a helpful tool, preventing you from adding secrets to your Git repositories: [git-secrets](https://github.com/awslabs/git-secrets), which allows you to create hooks for your local repositories.
 
-The tool causes a commit fail, for every commit containing (detected) security credentials. It requires to be configured for each local repository that you want to protect.
+The tool causes a commit fails, for every commit containing (detected) security credentials. It requires being configured for each local repository that you want to protect.
 
-It is possible to integrate its use in a CI system, detecting accidental commits, but this strategy will expose you secret.  
-For this reason we suggest to use it just as second layer protection (in the unfortunate case a developer forget to protect a local repository).
+It is possible to integrate its use in a CI system, detecting accidental commits, but this strategy will expose your secret.  
+For this reason, we suggest to use it just as second layer protection (in the unfortunate case a developer forget to protect a local repository).
 
 
 
@@ -45,7 +45,7 @@ git secrets --register-aws
 
 ### Advanced configuration
 
-First of all have a look to the official [/git-secrets](https://github.com/awslabs/git-secrets) repository.
+First of all, have a look at the official [/git-secrets](https://github.com/awslabs/git-secrets) repository.
 
 
 Add a configuration template if you want to add hooks to all repositories you initialize or clone in the future.
@@ -78,7 +78,7 @@ git secrets --scan-history
 
 We suggest to set up a second layer protection with a CI task for detect accidental commits.
 
-This Jenkins job [https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/](https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/) can be use as a template:
+This Jenkins job [https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/](https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/) can be used as a template:
 
 - Define a `GitHub project`-`Project url`, under `General` i.e.:
 ```
