@@ -78,16 +78,19 @@ git secrets --scan-history
 
 We suggest to set up a second layer protection with a CI task for detect accidental commits.
 
-This Jenkins job [https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/](https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/) can be used as a template:
-
 - Define a `GitHub project`-`Project url`, under `General` i.e.:
 ```
         https://github.com/EMBL-EBI-TSI/cpa-instance/
 ```
 
-- Specify the same URL under: `Source Code Management`-`Git`-`Repositories`-`Repository URL`
+![Jenkins Configuration, Github project checkbox ticked, and URL filled in](/images/Jenkins_GuardRepoSecret_01.png "Jenkins Configuration, General Settings")
 
+- Specify the same URL under: `Source Code Management`-`Git`-`Repositories`-`Repository URL`
 - Flag `GitHub hook trigger for GITScm polling` under `Build Triggers`.
+
+![Jenkins Configuration, Source Code Management, Git selected, and URL filled in, and Build Triggers GitHub hook trigger for GITScm polling ticked](/images/Jenkins_GuardRepoSecret_02.png "Jenkins Configuration, Source Code Management and Build Triggers")
+
+
 - Flag `Delete workspace before build starts` under `Build Environment `.
 - Under `Build`-`Execute shell`-`Command`
 ```
@@ -101,3 +104,7 @@ This Jenkins job [https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/](ht
     else
     echo "git secrets --scan FAIL"
 ```
+
+![Jenkins Configuration, Build Environment, Delete workspace before build starts checkbox ticked, and Build, Execute shell Command filled in](/images/Jenkins_GuardRepoSecret_03.png "Jenkins Configuration, Build Environment and Build")
+
+For those with accounts on our jenkins server, this Jenkins job [https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/](https://ci.tsi.ebi.ac.uk/job/app-testing/job/secret-check/) has the latest configuration and can be used as a template.
