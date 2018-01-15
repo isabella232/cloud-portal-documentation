@@ -26,6 +26,15 @@ It also possible to use **shared credentials**, in this case, the values will no
 
 #### Amazon Web Service (AWS)
 Add your `Cloud Credentials` in this form:
+```eval_rst
++-------------------+-----------------+
+| Key               | Value           |
++===================+=================+
+|`TF_VAR_access_key`|`your_access-key`|
++-------------------+-----------------+
+|`TF_VAR_secret_key`|`your_secret_key`|
++-------------------+-----------------+
+```
 
 |Key|Value|
 |---|---|
