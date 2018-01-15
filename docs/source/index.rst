@@ -10,10 +10,9 @@ Welcome to EMBL-EBI Portal Documentation's documentation!
    :maxdepth: 2
    :caption: Contents:
 
+   using_the_portal
    dev_documentation
    securing_credentials
-   old_index
-   mkdocs
 
 
 

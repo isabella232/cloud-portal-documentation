@@ -19,6 +19,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+import os
 import sphinx_rtd_theme
 import recommonmark
 from recommonmark.transform import AutoStructify
@@ -73,7 +74,7 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = []
+exclude_patterns = ['epilog.rst']
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = 'sphinx'
@@ -170,9 +171,6 @@ texinfo_documents = [
      'Miscellaneous'),
 ]
 
-
-
-
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {'https://docs.python.org/': None}
 
@@ -185,7 +183,6 @@ source_parsers = {
 }
 
 source_suffix = ['.rst', '.md']
-github.com/EMBL-EBI-TSI/cloud-portal-documentation/tree/master/doc
 github_doc_root = 'github.com/EMBL-EBI-TSI/cloud-portal-documentation/tree/dev/doc'
 def setup(app):
     app.add_config_value('recommonmark_config', {
@@ -193,3 +190,8 @@ def setup(app):
             'auto_toc_tree_section': 'Contents',
             }, True)
     app.add_transform(AutoStructify)
+
+
+# -- Add rst_epilog for common replacement via | |
+rst_epilog_fn = os.path.join(os.path.dirname(__file__),'epilog.rst')
+rst_epilog = open(rst_epilog_fn).read()

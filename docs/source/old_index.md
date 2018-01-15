@@ -1,4 +1,4 @@
-# Index
+# Using the |project_name|
 
 ## Access to the [`EMBL-EBI Cloud Portal`](https://portal.tsi.ebi.ac.uk)
 
