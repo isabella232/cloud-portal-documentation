@@ -185,8 +185,8 @@ source_parsers = {
 }
 
 source_suffix = ['.rst', '.md']
-
-github_doc_root = 'https://github.com/rtfd/recommonmark/tree/master/doc/'
+github.com/EMBL-EBI-TSI/cloud-portal-documentation/tree/master/doc
+github_doc_root = 'github.com/EMBL-EBI-TSI/cloud-portal-documentation/tree/dev/doc'
 def setup(app):
     app.add_config_value('recommonmark_config', {
             'url_resolver': lambda url: github_doc_root + url,
