@@ -1,11 +1,13 @@
-# Access to the [`EMBL-EBI Cloud Portal`](https://portal.tsi.ebi.ac.uk)
+# Index
+
+## Access to the [`EMBL-EBI Cloud Portal`](https://portal.tsi.ebi.ac.uk)
 
 The EMBL-EBI Cloud Portal is offered as a service to ELIXIR and other communities.  
 Users will need a freely available [ELIXIR identity](https://www.elixir-europe.org/services/compute/aai) to access the portal.  
 Obtain your ELIXIR identity [here](https://www.elixir-europe.org/register). Then you can [login](https://portal.tsi.ebi.ac.uk/welcome/login).
 
 
-# Set up the cloud [`Profile`](https://portal.tsi.ebi.ac.uk/profile)
+## Set up the cloud [`Profile`](https://portal.tsi.ebi.ac.uk/profile)
 
 From the global menu click [`Profile`](https://portal.tsi.ebi.ac.uk/profile).  
 
@@ -16,13 +18,13 @@ A minimal Profile set up include this steps:
 - Create a new entry in the `Profile - Configurations` section.
 
 
-## Cloud Credentials
+### Cloud Credentials
 
 Each cloud provider requires a set of **cloud credentials**.  
 **Personal credentials** can be set up following the instructions for the specific cloud provider.  
 It also possible to use **shared credentials**, in this case, the values will not be visible or editable.
 
-### Amazon Web Service (AWS)
+#### Amazon Web Service (AWS)
 Add your `Cloud Credentials` in this form:
 
 |Key|Value|
@@ -34,7 +36,7 @@ You can find this information (or create a new one) in you AWS user page under t
 
 `IAM` ---> `USERS`
 
-### Azure
+#### Azure
 Add your `Cloud Credentials` in this form:
 
 |Key|Value|
@@ -48,7 +50,7 @@ Add your `Cloud Credentials` in this form:
 In order to use Terraform with Azure is required to create a `Service Principal` via the Azure portal.  
 Terraform documentation provide an extensive explanation that you can find [here](https://www.terraform.io/docs/providers/azurerm/authenticating_via_service_principal.html#creating-a-service-principal-in-the-azure-portal).
 
-### OpenStack
+#### OpenStack
 Add your `Cloud Credentials` in this form:
 
 |Key|Value|
@@ -72,7 +74,7 @@ You can download the `OpenStack RC file` file from the OpenStack dashboard as an
 	(In older version of OpenStack click `Compute` --->`Access & Security`)
 4. Click` Download OpenStack RC File` and save the file.
 
-### Google Cloud Platform (GCP)
+#### Google Cloud Platform (GCP)
 
 Authenticating with Google Cloud services requires the set up of The [`GOOGLE_CREDENTIALS `](https://developers.google.com/identity/protocols/application-default-credentials#howtheywork)
 variable, which can also contain the path of a file to obtain credentials from.
@@ -94,7 +96,7 @@ Once you have your credentials you can add them to `Cloud Credentials` in this f
 |`GOOGLE_CREDENTIALS`| `{ "type":"service_account", "project_id":"", "private_key_id":"", "private_key":"-----BEGIN PRIVATE KEY-----", "client_email": "", "client_id":"", "auth_uri":"", "token_uri":"", "auth_provider_x509_cert_url":"", "client_x509_cert_url":""}`|
 
 
-## Deployment parameters
+### Deployment parameters
 
 `Deployment parameters` represent a set of inputs specific that are related to the cloud provider and eventually to a specific application.  
 In general, they provide information about the shared instances that you can have in place in your cloud provider or just information that you prefer to set up just the first time and avoid to repeat every time you deploy the instance.
@@ -106,7 +108,7 @@ A deployment parameter can also be used to overwrite any of the variables define
 
 * Note: The current version of the portal is requiring to include the parameters of all the cloud providers, in the deployment configurations. This behaviour will change soon, for the moment please enter a random value for the parameters that are not necessary for your cloud provider.
 
-## Configuration
+### Configuration
 
 Configurations represent a way to link a Cloud Credential with a Deployment Parameter and an SSH public key.  
 The use of a configuration simplifies the deployment of the application, allowing to store and reuse the specified parameters.  
@@ -118,7 +120,7 @@ Specify a new configuration is very easy:
  - choose one of the `Deployment parameters` that you have previously defined,
  - (optionally) add a public ssh key
 
-# Inputs
+## Inputs
 
 `Inputs` parameters represent a set of parameters that are meant to more volatile than the `Deployment parameters` or just cannot be determined in advance.  
 They are related to the specific application, and to the cloud provider and eventually.  
@@ -126,7 +128,7 @@ They are expressed on the documentation page of the git repository of the same a
 
 You can also avoid typing the inputs and it will use the defaults (but avoid to click with the mouse on them, otherwise it will see as a void instead of the default).
 
-# Add a new Application Repository
+## Add a new Application Repository
 
 Adding a new Application is extremely simple you just need to know the URL of the git repository, for example, you can add this address: `https://github.com/EMBL-EBI-TSI/cpa-instance`
 
@@ -134,7 +136,7 @@ Adding a new Application is extremely simple you just need to know the URL of th
 - click on the `+`  button
 - enter the `URL` of the git repository
 
-## Repository compliance
+### Repository compliance
 
 The `EMBL-EBI Cloud Portal` requires the presence of well-formed `manifest.json` file, in the `root directory` of each git repository, to be considered compliant and therefore be accepted as a new application.  
 The `manifest.json` file contains simple data structures, that expose the application details to the `EMBL-EBI Cloud Portal`.

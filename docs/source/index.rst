@@ -12,6 +12,8 @@ Welcome to EMBL-EBI Portal Documentation's documentation!
 
    dev_documentation
    securing_credentials
+   old_index
+   mkdocs
 
 
 
