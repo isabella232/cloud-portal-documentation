@@ -303,7 +303,7 @@ Each set of credentials is defined in the portal by three fields:
 
 * `Cloud provider` The cloud provider to which this set of cloud credentials refers to. Please refer to the labelling schema previously mentioned to pick the right label for the cloud provider.
 
-	
+
 
 * `Credentials fields`	This field contains a JSON array defining the credentials to be injected into the environment to allow Terraform to authenticate with the cloud provider. Here’s an example of how an OpenStack array looks like:
 
