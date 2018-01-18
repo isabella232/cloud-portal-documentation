@@ -6,4 +6,6 @@
 
 .. |elixir| replace:: `ELIXIR <https://www.elixir-europe.org>`__
 
-.. |terraform| replace:: `ELIXIR <https://www.terraform.io>`__
+.. |terraform| replace:: `Terraform <https://www.terraform.io>`__
+
+.. |ansible| replace:: `Ansible <https://www.ansible.com/>`__
