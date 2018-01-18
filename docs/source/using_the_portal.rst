@@ -1,3 +1,5 @@
+.. _using-the-portal:
+
 Using the |project_name|
 ========================
 
