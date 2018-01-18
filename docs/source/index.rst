@@ -11,7 +11,7 @@ Welcome to EMBL-EBI Cloud Portal's documentation!
    :caption: Contents:
 
    using_the_portal
-   applications_development
+   applications_packaging
    securing_credentials
 
 
