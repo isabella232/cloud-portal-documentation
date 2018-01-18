@@ -19,7 +19,7 @@ no knowledge of IT management to easily self-provision the infrastructure they r
 The process of wrapping infrastucture and workloads in an App that will be then
 understood and deployed by the |project_name| is called *packaging*.
 
-Stack overview
+The tools
 --------------
 
 As previously mentioned, the deployment capabilities of the |project_name|
