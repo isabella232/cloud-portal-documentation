@@ -90,7 +90,7 @@ deployed, |terraform| will check if they are still in place and adjust the
 plan accordingly.
 
 Applying
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^
 
 ``terraform apply`` is the operation that deploys a |terraform| template to a cloud
 provider. |terraform| will read the template and the state file (if any)
@@ -116,26 +116,26 @@ Ansible
 ~~~~~~~
 
 While |terraform| provides some features to configure (or *localise*) VMs
-after they’re launched, this is limited to uploading bash scripts or a
-run single command through SSH. Configuring and orchestrating complex
-deployments do require a fully fledged configuration management system.
+after they’re launched, this is limited to uploading bash scripts or
+run bash commands through SSH. Configuring and orchestrating complex
+deployments usually requires a fully fledged configuration management system.
 Countless different software are available to solve this problem, each
 of them having its own strong and weak points. We’ve eventually chosen
-|ansible| as the configuration management system for the EBI Portal
-deployments due to its very easy learning curve and to the fact it
-doesn’t require any agent on the VMs since it only needs an SSH
-connection to work. On top of that, it’s very easy YAML-based syntax can
-usually be learned and put into use in a matter of hours, not days.
+|ansible| as the configuration management system for the |project_name|
+deployments for several reasons:
+  - configuration is written in `YAML <https://en.wikipedia.org/wiki/YAML>`_,
+    an *easy-to-read* and *easy-to-write* language.
+  - the learning curve is very gentle, and most bash scripts can be easily mapped
+    (and improved!) in Ansible tasks.
+  - it doesn't require any agent on the target VMs, only SSH access.
 
 After a set of resources is created by |terraform|, |ansible| can take over
-by applying all the required configuration changes (i.e. install
-packages or update configuration files). |ansible| simplifies the process
-with a small trade-off: It is good enough to manage and maintain simple
-to moderately complex infrastructures because it employs a declarative
-approach to configuration statements. However, it’s important to note
-that the choice of supporting only |ansible|-based deployments from the
-portal doesn’t imply that applications themselves are forced to use this
-tool: it’s in fact quite easy to use |ansible| to bootstrap a Salt server
+and apply the configuration changes (i.e. install packages, update configuration
+files and so on).
+
+While |ansible| represents our choice in all the deployment situations, it doesn’t
+imply that applications themselves are forced to use this tool. For example, it
+would be quite easy to to use |ansible| to bootstrap a Salt server
 (or a Puppet master) that is then used by other VMs to configure
 themselves.
 
@@ -163,6 +163,11 @@ gap, the |project_name| supports
 `terraform-inventory <https://github.com/adammck/terraform-inventory>`_,
 a small GO app that is able to parse a |terraform| state file and output
 its content as an |ansible| inventory.
+
+Of course, developers are not bound to use this method to connect |terraform|
+and |ansible|. Solutions such as the `Terraform Ansible Provisioner <https://github.com/jonmorehouse/terraform-provisioner-ansible>`_
+or even custom scripts are viable options, depending on the needs of the App
+developer.
 
 The EBI Cloud Portal packaging structure
 ----------------------------------------
