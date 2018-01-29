@@ -169,17 +169,25 @@ and |ansible|. Solutions such as the `Terraform Ansible Provisioner <https://git
 or even custom scripts are viable options, depending on the needs of the App
 developer.
 
-The EBI Cloud Portal packaging structure
+The |project_name| packaging structure
 ----------------------------------------
+
+The |project_name| has been designed to provide as much flexibility as possible
+when dealing with Apps development. However, some conventions need to be followed
+while designing your App in order for it to work properly and to take advantage
+of all the features we provide.
+
+.. _cloud-providers:
 
 Cloud providers
 ~~~~~~~~~~~~~~~
 
-The Portal relies on a homogeneous labelling of Cloud Providers to
-match, for example, deployments with credentials and the cloud-specific
-code that must be executed each time. We strongly suggest following the
-labelling schema below to take full advantage of all the features the
-portal offers.
+The Cloud world can be, as the name says, very *cloudy*. However, the |project_name|
+needs to be absolutely sure of which cloud provider an application can be deployed
+to ensure it's providing the right set of configurations to the final user of your
+App. For this reason, the |project_name| relies on a homogeneous labelling of
+Cloud Providers in the Apps definition as well as in the REST API and the web
+application. You *must* follow this convention:
 
 +-------------------------+--------+
 | Cloud Provider          | Label  |
@@ -193,11 +201,84 @@ portal offers.
 | OpenStack               | OSTACK |
 +-------------------------+--------+
 
+If the Cloud Provider you want to write an App for isn't listed here, please get
+in touch with us - we'll be happy to add it to the list!
+
+Where to store your code
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+First things first, where do you need to store your code?
+
+The code defining an application for the |project_name| must be
+tracked within a Git repository publicly clonable over the internet.
+This is a **fundamental** requirement, as the way the Portal imports
+applications in your Registry is cloning such repositories.
+
+Adopting Git as our main delivery mechanisms allowed us to easily track code
+changes, keep ``dev`` and ``prod`` deployments separated in different branches,
+and provides a well-established approach to final users to further customise
+deployments above what initially foreseen by the App developer simply forking
+the original repository.
+
 The general structure
 ~~~~~~~~~~~~~~~~~~~~~
 
-Here’s the general structure of a repository hosting a packaged
-application for the portal: ::
+Apps, especially those supporting multiple cloud providers, can consist of a
+reasonable number of lines of code scattered across multiple files and written
+in several languages. It is thus important to keep some logical order in the
+codebase to help other users - and yourself in a few months! - understand how
+your application has been defined and operates. From the |project_name| perspective,
+there are a few requirements that must be satisfied when writing your app, and
+we'll cover those in the next sections.
+
+
+Separate Cloud Providers
+^^^^^^^^^^^^^^^^^^^^^^^^
+The code used to deploy to each cloud provider - being it |terraform|, |ansible|
+or anything else you require - must be stored in a dedicated folder. The names
+of these folders are currently not subject to any restriction, but we suggest
+to give them meaningful names (such as those suggested in the :ref:`cloud-providers`
+section above).
+
+Following this convention ensures that the repository will be more
+easily understood by other developers and help configuration matching.
+
+
+Separate Terraform and Ansible
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+As for the Cloud Providers, we suggest keeping separate the |terraform|
+and |ansible| codebases as this improves the readability and
+maintainability of the repository. Also, it allows for some tricks like
+sharing the same |ansible| code among different cloud providers (symlinks
+are good!) or using git
+`submodules <https://git-scm.com/book/en/v2/Git-Tools-Submodules>`__ to
+share code between several deployments.
+
+
+Manifest file
+^^^^^^^^^^^^^^
+
+The manifest file is a file containing a ``JSON`` dict providing a description of the application
+parsed by the |project_name| when loading it. You can find more information
+on its structure and the mandatory fields in the :ref:`manifest-file`
+section below.
+
+
+Auxiliary scripts
+^^^^^^^^^^^^^^^^^
+
+There might be situations requiring additional scripts or tools to carry out the
+deployment successfully. Feel free to add them to a folder within the repo, either
+in a cloud provider-specific folder if it's needed only by a single cloud provider or
+in a generic folder in the root of the repository if you need it in all clouds.
+
+
+All together
+^^^^^^^^^^^^
+
+Putting everything together, here's how a repository hosting a packaged App looks
+like: ::
 
    ├ .gitignore
    ├ README.md
@@ -230,19 +311,8 @@ but this is not a strict requirement. Being fully honest, there’s hardly
 strict requirements at all in the way the Portal consumes applications!
 Let’s have a more in-depth look, then!
 
-Where to store your code
-~~~~~~~~~~~~~~~~~~~~~~~~
 
-The code defining an application for the EBI Cloud Portal must be
-tracked within a git repository publicly clonable over the internet.
-This is a fundamental requirement, as the way the Portal imports
-applications in its own registry is cloning such repositories.
-
-Out the many ways, we may have supported this, we eventually chose git
-repository as this allows to easy to track code changes, keep dev and
-production deployments separated in different branches, and provides a
-well-established approach to final users to customize their own
-deployments forking the original repository.
+.. _manifest-file:
 
 The manifest file
 ~~~~~~~~~~~~~~~~~
@@ -364,16 +434,7 @@ Following this convention ensures that the repository will be more
 easily understood by other developers and make the credential matching
 more reliable.
 
-Separate Terraform and Ansible
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-As for the cloud providers, we suggest keeping separate the Terraform
-and |ansible| codebases as this improves much more the readability and
-maintainability of the repository. Also, it allows for some tricks like
-sharing the same |ansible| code among different cloud providers (symlinks
-are good!) or using git
-`submodules <https://git-scm.com/book/en/v2/Git-Tools-Submodules>`__ to
-share code between several deployments.
 
 Deployment scripts
 ^^^^^^^^^^^^^^^^^^
@@ -572,14 +633,6 @@ a wrapper around the |terraform| state command. Here’s the usual example!
     # Query Terraform state file
     terraform show $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate'
 
-Auxiliary scripts
-*****************
-
-Depending on the particular needs of each application, you might need
-auxiliary scripts to carry out the deployment successfully. These can
-currently be added to any folder within the repo and invoked via the
-bash scripts. We suggest placing the outputs of these commands (if any)
-in the deployment folder.
 
 Cloud credentials
 ~~~~~~~~~~~~~~~~~
