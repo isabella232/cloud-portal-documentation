@@ -5,25 +5,34 @@ Packaging Applications for the |project_name|
           and while we strive to keep this document as in sync as possible there might be minor delays. Any comment or feedback is very appreciated!
 
 
-The EBI Cloud Portal has been built to provide an App-Store-like
-experience when deploying applications to internal and public cloud
-providers, independently from their complexity. This goal is achieved
-exploiting two open source tools, |terraform| and |ansible|. While |terraform| makes very
-easy to create complex virtual infrastructures, Ansible shines in configuration
-management to turn a set of independent VMs into a, for example, batch system. This
-approach, called `Infrastructure as Code <https://en.wikipedia.org/wiki/Infrastructure_as_Code>`_,
+The |project_name| has been built to provide an App-Store-like
+experience when deploying applications to private as well as public clouds,
+independently from their complexity. Leveraging multiple open source tools (see :ref:`portal-tools`), the
+Portal can orchestrate complex virtual infrastructures ranging from batch
+systems to *Pipeline-as-a-service* scenarios, where the limit is only set by the
+application developer. This approach, called `Infrastructure as Code <https://en.wikipedia.org/wiki/Infrastructure_as_Code>`_,
 allows to reproducibily deploy virtual resources in one or multiple cloud providers
-in an highly automated way. The |project_name| builds on top of these two tools
-to provide a resilient use web interface allowing users with little to
+in an highly automated way. The |project_name| builds on top of these tools
+to provide a resilient REST API and a web interface allowing users with little to
 no knowledge of IT management to easily self-provision the infrastructure they require.
 The process of wrapping infrastucture and workloads in an App that will be then
 understood and deployed by the |project_name| is called *packaging*.
 
+.. _portal-tools:
+
 The tools
 --------------
 
-As previously mentioned, the deployment capabilities of the |project_name|
-are based on two Open Source tools, |terraform| and |ansible|. Let’s
+While the |project_name| can easily fall in the category of the **Cloud Orchestrators**,
+one of its streghts is taking advantage of widely adopted Open Source tools to
+deploy and configure the infrastrucure it is required to manage. Adopting this
+approach limits the amount of efforts that are required to, for example, stay on
+top of all the changes in the Cloud APIs that providers expose to access their services,
+to focus on its own very mission: support IT staff as well as researchers in easily
+deploy the infrastructure they require for their needs.
+
+As previously mentioned, the |project_name| takes advantage of two open source
+tools to orchestrate infrastructure, namely |terraform| and |ansible|. Let’s
 explore them a little bit further, then!
 
 Terraform
