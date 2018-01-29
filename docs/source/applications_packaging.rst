@@ -265,6 +265,17 @@ on its structure and the mandatory fields in the :ref:`manifest-file`
 section below.
 
 
+Deployment scripts
+^^^^^^^^^^^^^^^^^^
+
+When deploying or destroying an Application, the |project_name| doesn't directly
+execute |terraform| or |ansible|, but executes the ``deploy.sh`` and ``destroy.sh``
+scripts that it expects to find in each folder dealing with a cloud provider deployment.
+A third script, ``state.sh``, is executed after the deployment succeeds to capture
+a snapshot of the deployed infrastucture. More details on how these scripts
+should be coded are available in the :ref:`deployment-scripts` section.
+
+
 Auxiliary scripts
 ^^^^^^^^^^^^^^^^^
 
@@ -274,8 +285,8 @@ in a cloud provider-specific folder if it's needed only by a single cloud provid
 in a generic folder in the root of the repository if you need it in all clouds.
 
 
-All together
-^^^^^^^^^^^^
+The final structure
+^^^^^^^^^^^^^^^^^^^
 
 Putting everything together, here's how a repository hosting a packaged App looks
 like: ::
@@ -418,26 +429,10 @@ the defined credentials and picks the one tagged with the same string
 (``AWS`` in this case), so it is important to follow the labelling
 schema previously mentioned.
 
-How to organise your code in the git repository
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Separate each cloud provider
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-As you’ve learned in the section about the manifest file, the code to
-deal with each cloud provider must be kept in a separate folder. Even
-though the naming of these folders is currently left to each individual
-author, we suggest sticking to the following schema in the “**Cloud
-providers**” section above.
-
-Following this convention ensures that the repository will be more
-easily understood by other developers and make the credential matching
-more reliable.
-
-
+.. _deployment-scripts:
 
 Deployment scripts
-^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~
 
 The EBI Cloud portal is currently unable to directly execute Terraform
 and |ansible| commands, but exploits bash scripts to perform the
