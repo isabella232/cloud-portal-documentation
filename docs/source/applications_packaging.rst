@@ -25,7 +25,7 @@ The tools
 
 While the |project_name| can easily fall in the category of the **Cloud Orchestrators**,
 one of its streghts is taking advantage of widely adopted Open Source tools to
-deploy and configure the infrastrucure it is required to manage. Adopting this
+deploy and configure the infrastructure it is required to manage. Adopting this
 approach limits the amount of efforts that are required to, for example, stay on
 top of all the changes in the Cloud APIs that providers expose to access their services,
 to focus on its own very mission: support IT staff as well as researchers in easily
@@ -38,20 +38,19 @@ explore them a little bit further, then!
 Terraform
 ~~~~~~~~~
 
-|terraform| allows defining the virtual infrastructure an application requires to
+|terraform| allows to define the virtual infrastructure an application requires to
 run in an easily understandable declarative template written in HCL
 (`HashiCorp Configuration Language <https://www.terraform.io/docs/configuration/syntax.html>`_).
 VMs, networks, firewalls and storage volumes can easily be defined in a single or multiple files, leaving to
-|terraform| the burden to understand dependencies between all these
-resources and the order in which they must be created. Due to the
-intrinsic differences existing between different cloud providers,
-|terraform| is currently unable to provide a single template that is then
-mapped onto different cloud-specific templates. For this reason, the person in charge of
-packaging applications will need to define a |terraform| for each cloud
-provider he or she intends to support the application for. However, this
-usually comes down to a very reasonable mapping exercise between each
-cloud provider object names. Albeit this may be seen as a downside of
-Terraform, on the other hand, it allows exploiting many of the
+|terraform| to understand dependencies between all these
+resources and thus the order in which they must be created. Cloud providers
+offering are, however, too diverse to allow a single template to be automatically
+deployed across several of them. |terraform| doesn't try to hide these differences,
+For this reason, the person in charge of packaging applications will need to define
+a |terraform| template for each cloud provider he or she intends to support the
+application for. However, this usually comes down to a very reasonable mapping
+exercise between each cloud provider object names. This can be seen as a downside of
+|terraform| but, on the other hand, it allows to take advantage many of the
 vendor-specific features and services that wouldn’t otherwise be
 possible to access. At the time of writing, |terraform| supports the major
 public cloud providers (`AWS <https://aws.amazon.com/>`_, `Google Cloud Platform <https://cloud.google.com/>`_,
@@ -62,6 +61,7 @@ orchestrators that are able to deliver similar functionalities, but they are
 usually bound to a single platform (i.e. AWS `CloudFormation <https://aws.amazon.com/cloudformation/>`_
 or OpenStack `Heat <https://docs.openstack.org/heat/latest/>`_).
 
+
 The Terraform lifecycle
 ^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -69,11 +69,11 @@ The Terraform lifecycle
 the desired layout of the infrastructure you want to provision in the
 cloud. The state of each |terraform| deployment is tracked in what is
 called a *state* file, which is basically a list of all the
-resources |terraform| has deployed in the previous run. This behaviour
-allows the modification of a deployment editing the template as well the
-redeployment of resources that are no more available. The life-cycle of
-a |terraform| deployment can be divided into mainly three steps: planned,
-deployed and destroyed.
+resources |terraform| has deployed in the previous run. Comparing the state file
+with the *desired* state defined in the templates, |terraform| can compute their
+*diff* and incrementally change a deployment, i.e. increasing the number of nodes
+in a cluster, or recover from failures.
+
 
 Planning
 ^^^^^^^^
@@ -82,35 +82,35 @@ Depending on the initial state being an empty or a partially provisioned
 environment, the operations |terraform| will need to perform will be
 different. For this reason, the software allows listing all the tasks
 that will be carried out in the following run, comparing the desired
-state defined in the template and the state file and coming up with a
-*plan* that you can revise. This is obtained simply running terraform
-plan from within the folder containing the |terraform| template. Keep in
+state defined in the template and the state file and defining a
+*plan* that you can revise. This is obtained simply running ``terraform plan``
+within the folder containing the |terraform| template. Keep in
 mind that if the state file reports that some components are already
-deployed, |terraform| will check if it’s still in place and adjust the
-plan, if need.
+deployed, |terraform| will check if they are still in place and adjust the
+plan accordingly.
 
-Deploying *(a.k.a. applying)*
+Applying
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Applying is the operation that deploys a |terraform| template to a cloud
+``terraform apply`` is the operation that deploys a |terraform| template to a cloud
 provider. |terraform| will read the template and the state file (if any)
 figuring out which operations must be carried out to reach convergence,
-and then start applying them. This process may take a while, depending
-on the extent of the required changes and their mutual dependencies, but
-can usually greatly speeded up increasing the *parallelism*, the number
-of objects will act on at the same time. Once the deployment is
-complete, |terraform| will output any defined output in the template and
-exit.
+and apply them. This process may take a while, depending
+on the extent of the required changes and their dependencies, but
+can usually be greatly speeded up increasing the *parallelism*, or the number
+of objects |terraform| will act on at the same time.
+Once the deployment is complete, |terraform| will print out any output defined in
+the template and exit.
 
 Destroying
 ^^^^^^^^^^
 
-After his honourable service, your infrastructure is ready to be torn
-down or destroyed, following Terraform’s nomenclature. Not violating
+After its honourable service, your infrastructure is ready to be torn
+down or destroyed, following |terraform|’s nomenclature. Not violating
 dependencies is an important factor to consider here, as this might
 cause errors in the destroy process (i.e. removing a subnetwork while
 instances are still hooked into it). |terraform| wraps all this into an
-easy to use a single command.
+easy to use a single command: ``terraform destroy``.
 
 Ansible
 ~~~~~~~
