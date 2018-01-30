@@ -833,69 +833,6 @@ a wrapper around the |terraform| state command. Here’s the usual example!
   report the deployment to be in a ``RUNNING_FAILED`` state.
 
 
-Cloud credentials
-^^^^^^^^^^^^^^^^^
-
-At the moment, the EBI Cloud Portal supports credentials for all cloud
-providers, as long as these can be provided to |terraform| injecting a
-properly defined environment variable. A user can provide multiple
-credentials for different cloud providers, but we currently support a
-*single* set of credentials for each of them.
-
-Each set of credentials is defined in the portal by three fields:
-
--  ``Credential name`` A name for the credentials set
-
--  ``Cloud provider`` The cloud provider to which this set of cloud
-   credentials refers to. Please refer to the labelling schema
-   previously mentioned to pick the right label for the cloud provider.
-
--  ``Credentials fields`` This field contains a JSON array defining the
-   credentials to be injected into the environment to allow |terraform| to
-   authenticate with the cloud provider. Here’s an example of how an
-   OpenStack array looks like:
-
-::
-
-    [
-        {"key": "OS_AUTH_URL", "value":"https://someurl.com:5000/v2.0"},
-        {"key": "OS_TENANT_NAME", "value": "tenant_name"},
-        {"key": "OS_USERNAME", "value": "username"},
-        {"key": "OS_PASSWORD", "value": "password"}
-    ]
-
-One caveat: since this code will be read by a Java appliance, remember
-to escape any special character you may have in your credentials. A good
-example of this is the private key used as part of the GCP
-authentication: it contains some newline characters (``\n``) that will
-need to be escaped (``\\n``).
-
-Other configurations (moving towards a profile concept)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. warning:: This section is not in sync with the current state of the |project_name|
-             and will be updated soon.
-
-Sometimes injecting credentials are not enough. For example, GCP has the
-concept of projects, which are a separate compartment in which a single
-account can be divided into. |terraform| needs to know to which
-compartment resources should be deployed, and this is usually done
-specifying the project in the
-`provider <https://www.terraform.io/docs/providers/google/>`__. As the
-packaged application must be able to deploy itself in any project, this
-should be provided as an input. However, inputs must be typed in, each
-time the application is deployed! How can we fix this? Well, here’s the
-trick: |terraform| can also read the project from a dedicated environment
-variable: ``GOOGLE_PROJECT``. If we are planning to deploy always to the
-same project, we can simply add another variable to the credentials JSON
-array defining the ``GOOGLE_PROJECT`` environment variable, so that it
-will always be injected when deploying. A whole range of similar
-problems can be solved via this approach, i.e. feed the id of a shared
-AWS VPC to the deployments. However, this is currently limited by the
-fact that we only support a single set of credentials for each cloud
-provider. Once this limitation will be removed, we’ll revisit the
-concept of credential sets, possibly moving towards *cloud profiles*.
-
 Testing locally
 ~~~~~~~~~~~~~~~
 
