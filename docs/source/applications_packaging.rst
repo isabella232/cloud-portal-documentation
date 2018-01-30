@@ -285,6 +285,7 @@ deployment successfully. Feel free to add them to a folder within the repo, eith
 in a cloud provider-specific folder if it's needed only by a single cloud provider or
 in a generic folder in the root of the repository if you need it in all clouds.
 
+.. _app-structure:
 
 The final structure
 ^^^^^^^^^^^^^^^^^^^
@@ -545,66 +546,146 @@ as it obscures the flow of information in your App.
 Deployment scripts
 ~~~~~~~~~~~~~~~~~~
 
-The EBI Cloud portal is currently unable to directly execute Terraform
-and |ansible| commands, but exploits bash scripts to perform the
-deployments. Even if some work is currently in progress to move away
-from that, this is likely to remain the paradigm the portal will follow
-in the close future. Three deployment scripts are required for each
-cloud provider: deploy.sh, destroy.sh, state.sh. These must be saved in
-the root folder of each cloud provider deployment.
+At the moment, the |project_name| doesn't execute |terraform| or |ansible|
+directly, but relies on bash scripts to interact with the deployments. These
+scripts needs to be provided by the App developer and should carry out all the
+operations required to deploy, check and destroy the application. Bash scripts
+can easily be seen as an *inelegant* way to deal with this, but it currently provides
+the best level of flexibility to Apps developers while we more closely observe
+their needs - a fundamental step to a more organised approach.  Some exploratory
+work is currently in progress to move away from this approach, but this is likely
+to remain the paradigm the portal will follow in the close future.
 
-Special variables
-*****************
 
-Aside from the environment variables needed to authenticate against the
-APIs of the cloud providers, the portal will automatically inject some
-variables referring to the paths where data can be stored and retrieved,
-along with the deployment id. Currently, the complete list is as
-follows:
+Three deployment scripts are required for each cloud provider - deploy.sh,
+destroy.sh, state.sh - and they must be placed in the folder containing the
+cloud provider specific codebase (you can have a look at the anatomy of a
+|project_name| App :ref:`here <app-structure>`).
+
+
+The deployment environment
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+On top of the environment variables required by |terraform| to authenticate
+with the cloud providers and the variables defined by
+:ref:`deploymentParameters <manifest-deploymentParameters>` and
+:ref:`inputs <manifest-inputs>`, the |project_name| will inject additional
+variables in the deployment environment that you can use in your deploy scripts.
+
+
+There are two main set of variables the |project_name| injects: deployment
+variables and ssh management variables.
+
+Deployment variables
+********************
+
+Deployment variables are variables that let the App developer know where to
+access the App repository in the filesystem, place all the output files
+(i.e. the |terraform| state file) and the unique ID that has been assigned
+to the deployment. A list of these variables with their description is available
+below:
 
 +-----------------------------------+-----------------------------------+
 | Environment variable              | Value                             |
 +===================================+===================================+
-| PORTAL_APP_REPO_FOLDER            | The path where the application    |
-|                                   | code is stored (e.g. the cloned   |
-|                                   | repo). Only available in the      |
-|                                   | deploy and destroy phase, not     |
-|                                   | when checking the state running   |
-|                                   | state.sh                          |
+| PORTAL_APP_REPO_FOLDER            | Path where the application code   |
+|                                   | is stored (e.g. the cloned repo). |
+|                                   |                                   |
+|                                   | Only available to deploy.sh and   |
+|                                   | destroy.sh, **not** to state.sh   |
 +-----------------------------------+-----------------------------------+
-| PORTAL_DEPLOYMENTS_ROOT           | The path to the root of the       |
-|                                   | folder storing all the deployment |
-|                                   | folders                           |
+| PORTAL_DEPLOYMENTS_ROOT           | Path to the folder storing all the|
+|                                   | deployments.                      |
 +-----------------------------------+-----------------------------------+
-| PORTAL_DEPLOYMENT_REFERENCE       | The ID assigned to the deployment |
+| PORTAL_DEPLOYMENT_REFERENCE       | The unique ID assigned to the     |
+|                                   | deployment by the |project_name|  |
 |                                   | by the portal                     |
 +-----------------------------------+-----------------------------------+
 
-A very common use case for these variables is to place the Terraform
+Why do you need these variables? A very common use-case is to place the Terraform
 output in the folder belonging to your deployment: this path can be
 easily obtained joining ``PORTAL_DEPLOYMENTS_ROOT`` and
-``PORTAL_DEPLOYMENT_REFERENCE``, e.g.
+``PORTAL_DEPLOYMENT_REFERENCE`` as follows:
 
 ::
 
     "$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate'"
 
-deploy.sh
-*********
+This will ensure that your state file will end up in the right place in the
+filesystem, enabling the |project_name| to parse it to obtain usage information.
 
-This script takes care of deploying the application, and usually
-consists of at least a |terraform| and an |ansible| call. Here’s a snippet of
-the current deploy.sh for a GridFTP server on GCP:
+SSH variables
+*************
+
+The |project_name| generates a new SSH keypair at each deployment to mitigate
+the risk of security issues should a private key be compromised. Also, as part
+of a :ref:`Configuration <Configuration>` or during the deployment process,
+users can provide a public key that needs to be injected in the VMs to grant them
+access to the deployed App.
+
+These keys are exposed to the deployment environment via several variables:
+
++-----------------------------------+-----------------------------------+
+| Environment variable              | Value                             |
++===================================+===================================+
+| ``portal_public_key_path``        | Path where public deployment key  |
++-----------------------------------+ is stored                         |
+| ``TF_VAR_portal_public_key_path`` |                                   |
++-----------------------------------+-----------------------------------+
+| ``portal_private_key_path``       | Path where private deployment key |
++-----------------------------------+ is stored                         |
+| ``TF_VAR_portal_private_key_path``|                                   |
++-----------------------------------+-----------------------------------+
+| ``profile_public_key``            | String containing the public key  |
++-----------------------------------+ provided by the user in the       |
+| ``TF_VAR_profile_public_key``     | :ref:`Configuration` or during the|
+|                                   | deployment process                |
++-----------------------------------+-----------------------------------+
+
+.. note::
+  Keep in mind that ``profile_public_key`` and ``TF_VAR_profile_public_key``
+  contain directly the *key as a string*, while the other variables contain
+  the *path* to the a file containing the keys.
+
+Ideally, the flow of an App deployment when dealing with SSH keys should be
+
+#.  Inject the public part of the deployment key (``portal_public_key_path``) in
+    the VM(s) being created. |terraform| can easily be used to create a keypair,
+    for example in OpenStack, and then inject that keypair in the VMs.
+
+#.  Use the private part of the deployment key (``portal_private_key_path``) to
+    grant |ansible| (or the |terraform| `remote-exec provisioner <https://www.terraform.io/docs/provisioners/remote-exec.html>`_)
+    access to the VM(s) via SSH and apply the configuration.
+
+#.  As part of the configuration, replace the public part of the deployment key
+    with the user-specified public key (``profile_public_key``) in the target VMs.
+
+
+This workflow allows the |project_name| to seamlessly configure the deployed
+infrastructure while ensuring that only the user will have access to it once
+it is successfully deployed.
+
+.. warning::
+  Resist the urge to immediately swap the deployment public key with the user
+  public key at the beginning of the deployment. If you do so, and for some
+  reason the SSH connection drops the |project_name| will not be able to
+  re-establish the connection, causing the deployment to fail. Ideally, swapping
+  the key should be as close as possible to last step of the deployment.
+
+deploy.sh
+^^^^^^^^^
+
+This script takes care of deploying the App, and usually
+consists of at least a |terraform| call. Here’s a snippet of
+the deploy.sh for a GridFTP server on GCP:
 
 ::
 
     #!/usr/bin/env bash
     set -e
     # Provisions a GridFTP instance in GCP
-    # For details about expected inputs and outputs, refer to https://github.com/EMBL-EBI-TSI/gridftp-server
     # The script assumes that env vars for authentication with GCP are present.
     export TF_VAR_name="$(awk -v var="$PORTAL_DEPLOYMENT_REFERENCE" 'BEGIN {print tolower(var)}')"
-    export KEY_PATH="${HOME}/.ssh/demo-key.pem"
 
     # Launch provisioning of the VM
     terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate' $PORTAL_APP_REPO_FOLDER'/gcp/terraform'
@@ -624,8 +705,7 @@ the current deploy.sh for a GridFTP server on GCP:
     eval "$(ssh-agent -k)
 
 As you can see, there are a few additional things going on here rather
-than two simple |terraform| and |ansible| calls. Again, let’s go
-step-by-step!
+than two simple |terraform| and |ansible| calls. Let's have a deeper look!
 
 ::
 
@@ -635,33 +715,38 @@ step-by-step!
     # For details about expected inputs and outputs, refer to https://github.com/EMBL-EBI-TSI/gridftp-server
     # The script assumes that env vars for authentication with GCP are present.
     export TF_VAR_name="$(awk -v var="$PORTAL_DEPLOYMENT_REFERENCE" 'BEGIN {print tolower(var)}')"
-    export KEY_PATH="${HOME}/.ssh/demo-key.pem"
 
 This initial block defines the `shebang <https://en.wikipedia.org/wiki/Shebang_(Unix)>`_
 for the script (``#!/usr/bin/env bash``) and forces the bash script to exit
 immediately if any command exits with a non-zero status (``set -e``).
-Then, it exports two environment variables: ``TF_VAR_name`` and
-``KEY_PATH``. The first will automatically be picked up by |terraform| and
-mapped to its internal variable name, eventually causing each resource
-to be named after the deployment ID (more on this in the next session),
-while the second allows defining the path to the SSH key to be used to
-access the VMs.
+Then, it exports the ``TF_VAR_name`` environment variable, which will in
+turn be used by |terraform| to populate its own internal variable ``name``.
+This application uses the ``name`` variable to assign dynamic names to each
+resources it creates, for example the name of the VM is defined as
+::
 
+    name = "${var.name}_server"
+
+which ensures there will be no name collisions. Following this approach, each
+resource will be tagged the same |project_name| deployment ID.
+
+Next step, let's get those VM(s) deployed!
 ::
 
     # Launch provisioning of the VM
     terraform apply --state=$PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate' $PORTAL_APP_REPO_FOLDER'/gcp/terraform'
 
-This block is quite obvious: deploy the defined |terraform| template to
-the cloud provider. Keep in mind that the Portal will have already
-injected the needed credentials in the deployment environment, so you
-don’t need to care about that.
+This snippet is quite easy: run |terraform| to deploy the defined template to
+in the cloud provider. Since the |project_name| has already injected the correct
+environment variables to authenticate with the chosen cloud provider you won't
+need to specify anything else.
 
+VM(s) are now up, let's configure them!
 ::
 
     # Start local ssh-agent
     eval "$(ssh-agent -s)"
-    ssh-add $KEY_PATH &> /dev/null
+    ssh-add $portal_private_key_path &> /dev/null
 
     # Get ansible roles
     cd gcp/ansible || exit
@@ -673,35 +758,40 @@ don’t need to care about that.
     # Kill local ssh-agent
     eval "$(ssh-agent -k)"
 
-This block deals with everything that is needed by |ansible| to work. When
+This block deals with everything that is required by |ansible| to work. When
 the Portal launches the deployment script, a new
-`ssh-agent <https://en.wikipedia.org/wiki/Ssh-agent>`__ is spawned and
-the SSH key to access the VMs is pre-loaded. Then, ansible-galaxy is
-used to pull all the requirements for the playbook to run (keep in mind
-that only public repositories will be clonable). Next step, invoking
+`ssh-agent <https://en.wikipedia.org/wiki/Ssh-agent>`_ is spawned and
+the SSH key (``portal_private_key_path``) to access the VMs is pre-loaded.
+Then, `ansible-galaxy <https://docs.ansible.com/ansible/latest/ansible-galaxy.html>`_
+is used to pull all the requirements for the playbook to run. Next step, invoking
 |ansible| itself. It’s not a very plain invocation, though:
 
 -  prefixing the command with ``TF_STATE=...`` tells terraform-inventory
-   where to look for the |terraform| state file
+   where to look for the |terraform| state file;
 
 -  ``-i /usr/local/bin/terraform-inventory`` tells |ansible| to use
    terraform-inventory to create the inventory on the flight. Keep in
    mind that |ansible| supports as arguments of the ``-i`` flag both text
    files containing an inventory and *executables returning an
-   inventory.*
+   inventory*;
 
 -  ``-u centos -b`` force |ansible| to use the user centos over ssh and to
    execute commands with ``sudo`` (b =
-   `become <http://docs.ansible.com/ansible/become.html>`__)
+   `become <http://docs.ansible.com/ansible/become.html>`__).
 
-The last step is to kill the previously spawned ssh-agent. Deployment
+The last step is to kill the previously spawned ``ssh-agent``. Deployment
 (hopefully) done!
 
-destroy.sh
-**********
+.. note::
+  When using `Ansible Galaxy <https://galaxy.ansible.com/>`_ to download the
+  required roles keep in mind that only *public* repos will be accessible from
+  the |project_name|.
 
-This script is executed by the EBI Cloud Portal to destroy an
-application. It usually consists of a single |terraform| call to destroy
+destroy.sh
+^^^^^^^^^^
+
+This script is executed by the |project_name| to destroy an
+Application. It usually consists of a single |terraform| call to destroy
 the provisioned infrastructure. Here’s an example, again from a GridFTP
 server.
 
@@ -710,7 +800,6 @@ server.
     #!/usr/bin/env bash
     set -e
     # Destroys a GridFTP deployment in GCP
-    # For details about expected inputs and outputs, refer to: https://github.com/EMBL-EBI-TSI/gridftp-server
     # The script assumes that env vars for authentication with GCP are already present.
 
     # Export input variable in the bash environment
@@ -722,7 +811,7 @@ server.
 Nothing fancy, right?
 
 state.sh
-********
+^^^^^^^^
 
 This script is executed by the Portal immediately after the deployment
 to grab an updated picture of all the deployed resources. It’s basically
@@ -733,15 +822,19 @@ a wrapper around the |terraform| state command. Here’s the usual example!
     #!/usr/bin/env bash
     set -e
     # Get the status of a GridFTP deployment in GCP
-    # For details about expected inputs and outputs, refer to https://github.com/EMBL-EBI-TSI/gridftp-server
     # The script assumes that env vars for authentication with GCP are present.
 
     # Query Terraform state file
     terraform show $PORTAL_DEPLOYMENTS_ROOT'/'$PORTAL_DEPLOYMENT_REFERENCE'/terraform.tfstate'
 
 
+.. note::
+  If the ``state.sh`` script is not present, or fails, the |project_name| will
+  report the deployment to be in a ``RUNNING_FAILED`` state.
+
+
 Cloud credentials
-~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^
 
 At the moment, the EBI Cloud Portal supports credentials for all cloud
 providers, as long as these can be provided to |terraform| injecting a
