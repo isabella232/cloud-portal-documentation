@@ -123,11 +123,12 @@ Countless different software are available to solve this problem, each
 of them having its own strong and weak points. We’ve eventually chosen
 |ansible| as the configuration management system for the |project_name|
 deployments for several reasons:
-  - configuration is written in `YAML <https://en.wikipedia.org/wiki/YAML>`_,
-    an *easy-to-read* and *easy-to-write* language.
-  - the learning curve is very gentle, and most bash scripts can be easily mapped
-    (and improved!) in Ansible tasks.
-  - it doesn't require any agent on the target VMs, only SSH access.
+
+- configuration is written in `YAML <https://en.wikipedia.org/wiki/YAML>`_,
+  an *easy-to-read* and *easy-to-write* language.
+- the learning curve is very gentle, and most bash scripts can be easily mapped
+  (and improved!) in Ansible tasks.
+- it doesn't require any agent on the target VMs, only SSH access.
 
 After a set of resources is created by |terraform|, |ansible| can take over
 and apply the configuration changes (i.e. install packages, update configuration
@@ -387,26 +388,29 @@ This part of the manifest deals with all the information that is cloud provider
 While many of the fields are self-explanatory, here's a run down of all of them:
 
 
-applicationName
-  The name of the application packaged in the git repo. As users can have many applications
+applicationName (Required)
+  The name of the application packaged in the git repo.
+
+  As users can have many applications
   in their Registries, going for a descriptive name is a good approach (``some server`` isn't
   going to get you far!).
 
-contactEmail
+contactEmail (Required)
   The email address of the person (or group) in charge of maintaining the Application
-  and providing support for it.
+  and provide support for it. *Mandatory*
 
-about
-  A one-line description on what the Application does. This will be displayed
-  below the title in the App card in the Repository.
+about (Required)
+  A one-line description on what the Application does. *Mandatory*
 
-version
-  The current version of the application. ``version``
-  is also displayed in the App card in the Repository.
+  This will be displayed below the title in the App card within the Repository.
 
-.. _deploymentParameters:
+version (Required)
+  The current version of the application. This is also
+  displayed in the App card in the Repository.
 
-deploymentParameters
+.. _manifest-deploymentParameters:
+
+deploymentParameters (Optional)
   A list of the Deployment Parameters for this app.
 
   Deployment parameters are all those parameter that *do not* change between
@@ -414,34 +418,35 @@ deploymentParameters
   name (or id) of the external network in an Openstack cloud depends on the cloud
   itself, but is always the same when deploying to a given cloud. It thus makes
   sense to separate these parameters from deployment-dependent parameters (see
-  :ref:`inputs <inputs>` for those) to save the user the hassle to type them every time.
+  :ref:`inputs <manifest-inputs>` for those) to save the user the hassle to type them every time.
 
 
   Variables defined here will be injected by the |project_name| in the deployment
   environment prepended with the suffix ``TF_VAR_`` to allow |terraform| to use
   them `directly <https://www.terraform.io/docs/configuration/variables.html#environment-variables.>`_.
   Values for the ``deploymentParameters`` variables are sourced at deployment time
-  from the :ref:`Deployment Parameters` referenced in the :ref:`Configuration` selected by the the
-  user.
+  from the :ref:`Deployment Parameters` referenced in the :ref:`configuration <Configuration>`
+  selected by the user.
 
-.. _inputs:
+.. _manifest-inputs:
 
-inputs
+inputs (Optional)
   A list of the inputs required by the Application.
 
   In this particular case the `disk_image` (also called **image name**) to be
   used when creating the virtual machine. Inputs should preferred over
-  :ref:`deploymentParameters <deploymentParameters>` when their value needs to *change* at each deployment.
+  :ref:`deploymentParameters <manifest-deploymentParameters>` when their value needs to *change*
+  at each deployment.
   In our case, the base disk will be different each time the user wants to deploy
   a different OS (CentOS, Ubuntu, BioLinux,...) so it makes sense to keep it as input.
 
   Input fields will be shown by the |project_name| for each of the `inputs`
   defined in the manifest to to allow users to customise the deployment behaviour.
-  As for the :ref:`deploymentParameters <deploymentParameters>`, all the values will
+  As for the :ref:`deploymentParameters <manifest-deploymentParameters>`, all the values will
   be injected as environment variables with the ``TF_VAR`` prefix.
 
 
-outputs
+outputs (Optional)
   A list of the outputs the Application wants to show to the user.
 
   A very common use case when deploying infrastructure to the cloud is the need
@@ -451,52 +456,89 @@ outputs
   The |project_name| will scan the output of the Terraform state file looking
   for the strings defined in this ``JSON`` array, and display the result to the user.
 
-volumes
+.. _manifest-volumes:
+
+volumes (Optional)
   A list of the volumes the Application requires to work.
 
   Sometimes, a deployment requires attaching a previously defined volume.
   For example, some data may be staged in via a GridFTP server on a
   particular volume, that is then re-attached to an NFS server serving a
-  batch system. The EBI Cloud Portal allows to completely separate the
+  batch system. The |project_name| allows to completely separate the
   volumes lifecycle from the lifecycle of applications. Adding a volume
-  name (i.e. ``DATA_DISK_ID`` in our previous example) to volumes
-  automatically displays a drop-down menu listing all the volumes deployed
-  through the portal on the deployment card. The id of the selected
-  volume (as provided by the cloud provider, not the portal internal id)
-  is then injected into the deployment process as an environment variable
-  (i.e. ``TF_VAR_DATA_DISK_ID`` in this case).
+  name (i.e. ``DATA_DISK_ID``) to volumes automatically displays a drop-down menu
+  listing all the volumes deployed through the |project_name| on the deployment card.
+  The id of the selected volume (as provided by the cloud provider,
+  not the portal internal id!) is then injected into the deployment process as
+  an environment variable (i.e. ``TF_VAR_DATA_DISK_ID`` in our example).
 
 .. warning::
-    Variables defined in :ref:`deploymentParameters <deploymentParameters>` and
-    :ref:`inputs <inputs>` will be injected by the |project_name| in the deployment
-    environment prepended with the suffix ``TF_VAR_`` to allow |terraform| to use
-    them `directly <https://www.terraform.io/docs/configuration/variables.html#environment-variables.>`_.
+    Variables defined in :ref:`deploymentParameters <manifest-deploymentParameters>`,
+    :ref:`inputs <manifest-inputs>` and :ref:`volumes <manifest-volumes>` will be injected by the
+    |project_name| in the deployment environment prepended with the suffix ``TF_VAR_``
+    to allow |terraform| to use them `directly <https://www.terraform.io/docs/configuration/variables.html#environment-variables.>`_.
     Keep this in mind when you're using these variables in Ansible!
 
 
 Defining supported cloud providers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
-This is where the magic happens! This JSON array contains a dictionary
-(an hash table, following JSON nomenclature) for each cloud provider the
-application supports. The structure is as follows:
+Each App can support one or more cloud providers, and this is defined by the
+``cloudProviders`` list in the :ref:`manifest file <manifest-file>`. This key
+is *required* in each manifest, and supported provider should be declared adding
+a dictionary (or hash table, following the ``JSON`` nomenclature) to the ``cloudProviders``
+list with the following schema:
 
 ::
 
-    { "cloudProvider":"AWS", "path":"aws", "inputs": [ "vpc_id" ] }
+  {
+    "cloudProvider": "AWS",
+    "path": "aws",
+    "inputs": [
+      "instance_type"
+    ]
+  }
 
-``cloudProvider`` specifies which cloud provider the dictionary is
-providing information for, ``path`` is the path to the folder where the
-code to deploy to the given cloud provider is located, while inputs is
-an optional JSON array defining cloud-specific inputs (in our example,
-the ``vpc_id`` to use on AWS).
+Allowed keys in this dictionary are:
 
-The ``cloudProvider`` value is also used to pick the right credentials
-when deploying. At the time of writing, the portal simply looks among
-the defined credentials and picks the one tagged with the same string
-(``AWS`` in this case), so it is important to follow the labelling
-schema previously mentioned.
+cloudProvider (Required)
+  Specifies which cloud provider the dictionary specifies support for.
+
+  This values is used to filter the :ref:`configurations <Configuration>` a user
+  can pick when deploying this applications. It's thus *required* to follow the
+  :ref:`nomenclature <cloud-providers>` defined earlier for this filtering to
+  work as expected.
+
+path (Required)
+  Specifies the path to the folder containing the deployment code for the
+  specified cloud provider.
+
+  There is no restriction on the name these folders can have, and this is the
+  very reason why this key exists, but for the sake of understandability we
+  warmly suggest to use the string defined in our :ref:`nomenclature <cloud-providers>`
+  for Cloud Providers in lowercase.
+
+inputs (Optional)
+  Specifies cloud provider specific inputs.
+
+  These inputs will be only shown when the users decides to deploy the App in
+  this cloud provider. The |project_name| will merge them with the
+  :ref:`generic inputs <manifest-inputs>` and ask the user to provide values
+  during the deployment process.
+
+.. note::
+    At the time of writing, the |project_name| doesn't support cloud provider
+    specific :ref:`deploymentParameters <manifest-deploymentParameters>`.
+
+
+Variables precedence
+^^^^^^^^^^^^^^^^^^^^
+
+If the same variable is defined both as a :ref:`deployment parameter <manifest-deploymentParameters>`
+and as an :ref:`input <manifest-inputs>` (both generic or cloud-specific), **inputs**
+will always take precedence. This allows to override what defined in a
+:ref:`Deployment Parameters` on ad-hoc basis. However, this approach is *not* recommended
+as it obscures the flow of information in your App.
 
 .. _deployment-scripts:
 
