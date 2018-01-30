@@ -320,7 +320,6 @@ then folders storing code for each cloud provider. In this particular
 repo, the |ansible| code is shared among the cloud providers via symlinks,
 but this is not a strict requirement. Being fully honest, there’s hardly
 strict requirements at all in the way the Portal consumes applications!
-Let’s have a more in-depth look, then!
 
 
 .. _manifest-file:
@@ -328,85 +327,155 @@ Let’s have a more in-depth look, then!
 The manifest file
 ~~~~~~~~~~~~~~~~~
 
-Each repository defining an application must contain a *manifest* at its
-root describing it. This file will be parsed by the EBI Cloud Portal
-when importing the application to populate the Registry fields. Here’s
-an example of the manifest file defining an OpenLava cluster
-application:
+
+Each repository defining an application must contain a ``JSON`` file, called a
+*manifest* fine, at the root of the repo. This file is parsed by the |project_name|
+when adding an application to the Registry to extract things such as application name,
+version, contact email of the maintainer, and so on. Here’s
+an example of the manifest file defining a ``Generic server instance`` App supporting
+both ``AWS`` and ``OSTACK``:
 
 ::
 
-    {
-        "applicationName":"OpenLava cluster",
-        "contactEmail":"dario@ebi.ac.uk",
-        "about":"An OpenLava cluster for AWS, GCP and OpenStack",
-        "version": "0.1",
-        "inputs": ["nodes"],
-        "outputs": ["MASTER_IP"],
-        "volumes": ["DATA_DISK_ID"],
-        "cloudProviders": [
-            { "cloudProvider":"AWS", "path":"aws", "inputs": [ "vpc_id" ] },
-            { "cloudProvider":"OSTACK", "path":"ostack" },
-            { "cloudProvider":"GCP", "path":"gcp"}
-       ]
-    }
+  {
+    "applicationName": "Generic server instance",
+    "contactEmail": "somebody@ebi.ac.uk",
+    "about": "A base virtual machine instance",
+    "version": "0.6",
+    "cloudProviders": [
+      {
+        "cloudProvider": "AWS",
+        "path": "aws",
+        "inputs": [
+          "instance_type"
+        ]
+      },
+      {
+        "cloudProvider": "OSTACK",
+        "path": "ostack",
+        "inputs": [
+          "flavor_name"
+        ]
+      }
+    ],
+    "deploymentParameters": [
+      "network_name",
+      "floatingip_pool",
+      "subnet_id"
+    ],
+    "inputs": [
+      "disk_image"
+    ],
+    "outputs": [
+      "external_ip"
+    ],
+    "volumes": [
+    ]
+  }
 
-Many of the fields are self-explanatory, but let’s walk through them
-anyway:
+Nothing too difficult, hopefully! The manifest is logically divided in two *parts*:
+one dealing with the general description of the application, and one dealing with
+configurations that are specific to a cloud provider. Let's start from the general one
+first
 
--  ``applicationName`` The name that will be shown in the Portal
-   registry for this application
--  ``contactEmail`` The email address of the person or group maintaining
-   the application
--  ``about`` A (*very*) brief description of what the application does
--  ``version`` The current version of the application
--  ``inputs`` An array of strings defining the inputs required by the
-   application, in this particular case the number of nodes to be
-   deployed in our OpenLava cluster. Input fields will be shown by the
-   Portal to allow users to customize the deployment behaviour. All the
-   values will then be injected as environment variables when deploying,
-   making them accessible to |terraform| and |ansible|.
 
-Any ``input`` name defined in the manifest will be injected into the
-environment as ``TF_VAR_input``. Since |terraform| automatically imports
-environment variables with the ``TF_VAR_`` prefix and maps them to its
-own internal variables (removing the prefix), this allows to easily wire
-up the deployment with user inputs. Using our OpenLava deployment as an
-example, the portal will show an input field named ``nodes``, and inject
-the value entered by the user in the environment variable
-``TF_VAR_nodes``, that is the read by |terraform| and mapped to its
-internal variable ``nodes``. Should an |ansible| playbook need to access
-the same input value, it must look for the ``TF_VAR_input`` environment
-variable, as no automatic mapping is available in |ansible|.
+Cloud provider independent part
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This part of the manifest deals with all the bits of information that are cloud provider
+*independent*, such as name of the App, maintainer, version, as well as inputs and outputs.
+While many of the fields are self-explanatory, here's a run down of all of them:
+
+
+applicationName
+  The name of the application packaged in the git repo. As users can have many applications
+  in their Registries, going for a descriptive name is a good approach (``some server`` isn't
+  going to get you far!).
+
+contactEmail
+  The email address of the person (or group) in charge of maintaining the Application
+  and provide support for it.
+
+about
+  A *very* short description on what the Application does. This will be displayed
+  below the title in the App card in the Repository.
+
+version
+  The current version of the application. As for the ``about`` field, the ``version``
+  is displayed in the App card in the Repository.
+
+.. _deploymentParameters:
+
+deploymentParameters
+  A list of the Deployment Parameters for this app.
+
+  Deployment parameters are all those parameter that *do not* change between
+  deployments, but are *cloud provider* or *tenancy* specific. For example, the
+  name (or id) of the external network in an Openstack cloud depends on the cloud
+  itself, but is always the same when deploying to a given cloud. It thus makes
+  sense to separate these parameters from deployment-dependent parameters (see
+  :ref:`inputs <inputs>` for those) to save the user the hassle to type them every time.
+
+
+  Variables defined here will be injected by the |project_name| in the deployment
+  environment prepended with the suffix ``TF_VAR_`` to allow |terraform| to use
+  them `directly <https://www.terraform.io/docs/configuration/variables.html#environment-variables.>`_.
+  Values for the ``deploymentParameters`` variables are sourced at deployment time
+  from the :ref:`Deployment Parameters` referenced in the :ref:`Configuration` the
+  user picks.
+
+.. _inputs:
+
+inputs
+  A list of the inputs required by the Application.
+
+  In this particular case the `disk_image` (also called **image name**) to be
+  used when creating the virtual machine. Inputs should preferred over
+  :ref:`deploymentParameters <deploymentParameters>` when their value needs to *change* at each deployment.
+  In our case, the base disk will be different each time the user wants to deploy
+  a different OS (CentOS, Ubuntu, BioLinux,...) so it makes sense to keep it as input.
+
+  Input fields will be shown by the |project_name| for each of the `inputs`
+  defined in the manifest to to allow users to customise the deployment behaviour.
+  As for the :ref:`deploymentParameters <deploymentParameters>`, all the values will
+  be injected as environment variables with the ``TF_VAR`` prefix.
+
 
 outputs
-^^^^^^^
+  A list of the outputs the Application wants to show to the user.
 
+  A very common use case when deploying infrastructure to the cloud is the need
+  to show back to the user some information resulting from the deployment itself,
+  for example the external IP address of the VM that has just been deployed.
 
-A very common use case when deploying infrastructure to the cloud is the
-need to show back to the user some information resulting from the
-deployment itself, as for example the external IP address of a batch
-system master node. The portal will scan the output of the Terraform
-state file looking for the strings defined in this JSON array, and
-display the result to the user.
+  The |project_name| will scan the output of the Terraform state file looking
+  for the strings defined in this ``JSON`` array, and display the result to the user.
 
 volumes
-^^^^^^^
+  A list of the volumes the Application requires to work.
 
-Sometimes, a deployment requires attaching a previously defined volume.
-For example, some data may be staged in via a GridFTP server on a
-particular volume, that is then re-attached to an NFS server serving a
-batch system. The EBI Cloud Portal allows to completely separate the
-volumes lifecycle from the lifecycle of applications. Adding a volume
-name (i.e. ``DATA_DISK_ID`` in our previous example) to volumes
-automatically displays on the deployment card a drop-down menu listing
-all the volumes deployed through the portal. The id of the selected
-volume (as provided by the cloud provider, not the portal internal id)
-is then injected into the deployment process as an environment variable
-(i.e. ``TF_VAR_DATA_DISK_ID`` in this case).
+  Sometimes, a deployment requires attaching a previously defined volume.
+  For example, some data may be staged in via a GridFTP server on a
+  particular volume, that is then re-attached to an NFS server serving a
+  batch system. The EBI Cloud Portal allows to completely separate the
+  volumes lifecycle from the lifecycle of applications. Adding a volume
+  name (i.e. ``DATA_DISK_ID`` in our previous example) to volumes
+  automatically displays on the deployment card a drop-down menu listing
+  all the volumes deployed through the portal. The id of the selected
+  volume (as provided by the cloud provider, not the portal internal id)
+  is then injected into the deployment process as an environment variable
+  (i.e. ``TF_VAR_DATA_DISK_ID`` in this case).
 
-cloudProviders
-^^^^^^^^^^^^^^
+.. warning::
+    Variables defined in :ref:`deploymentParameters <deploymentParameters>` and
+    :ref:`inputs <inputs>` will be injected by the |project_name| in the deployment
+    environment prepended with the suffix ``TF_VAR_`` to allow |terraform| to use
+    them `directly <https://www.terraform.io/docs/configuration/variables.html#environment-variables.>`_.
+    Keep this in mind when you're using these variables in Ansible!
+
+
+Cloud provider specific part
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 This is where the magic happens! This JSON array contains a dictionary

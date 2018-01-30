@@ -14,10 +14,10 @@ At the moment, users needs to sign-up for an |elixir| account to access the |por
 `ELIXIR sign-up page <https://www.elixir-europe.org/register>`_, and go to the |project_name| login page at https://cloud-portal.ebi.ac.uk/welcome/login.
 
 .. _`Cloud Profile`:
+
 Setting up up your Cloud Profile
 -----------------------------------------------------------------------
 
- .. <https://portal.tsi.ebi.ac.uk/profile>`_
 Your Cloud Profile contains all the information required to deploy your applications to a given cloud provider. It's subdivided in three sections: `Configurations`_ , `Cloud Credentials`_, and
 `Deployment Parameters`_. `Cloud Credentials`_ are combined with a set of `Deployment Parameters`_ and a SSH public key to give the `Configuration`_ required to deploy a certain
 application in the cloud provider of choice.
@@ -140,6 +140,8 @@ in this form:
 | ``GOOGLE_CREDENTIALS``            | ``{ "type":"service_account", [..]}``|
 +-----------------------------------+--------------------------------------+
 
+.. _`Deployment Parameters`:
+
 Deployment parameters
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -161,6 +163,7 @@ reported as input in the ``manifest`` file.
 
 
 .. _`Configuration`:
+
 Configurations
 ~~~~~~~~~~~~~~
 
