@@ -379,7 +379,7 @@ configurations that are specific to a cloud provider. Let's start from the gener
 first
 
 
-Cloud provider independent part
+Cloud provider independent bits
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 This part of the manifest deals with all the bits of information that are cloud provider
@@ -474,8 +474,8 @@ volumes
     Keep this in mind when you're using these variables in Ansible!
 
 
-Cloud provider specific part
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Defining supported cloud providers
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 This is where the magic happens! This JSON array contains a dictionary
