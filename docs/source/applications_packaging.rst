@@ -530,6 +530,16 @@ inputs (Optional)
     At the time of writing, the |project_name| doesn't support cloud provider
     specific :ref:`deploymentParameters <manifest-deploymentParameters>`.
 
+
+Variables precedence
+^^^^^^^^^^^^^^^^^^^^
+
+If the same variable is defined both as a :ref:`deployment parameter <manifest-deploymentParameters>`
+and as an :ref:`input <manifest-inputs>` (both generic or cloud-specific), **inputs**
+will always take precedence. This allows to override what defined in a
+:ref:`Deployment Parameters` on ad-hoc basis. However, this approach is *not* recommended
+as it obscures the flow of information in your App.
+
 .. _deployment-scripts:
 
 Deployment scripts
