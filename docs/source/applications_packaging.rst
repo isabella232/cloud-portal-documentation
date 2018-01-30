@@ -382,7 +382,7 @@ first
 Cloud provider independent bits
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This part of the manifest deals with all the bits of information that are cloud provider
+This part of the manifest deals with all the information that is cloud provider
 *independent*, such as name of the App, maintainer, version, as well as inputs and outputs.
 While many of the fields are self-explanatory, here's a run down of all of them:
 
@@ -394,15 +394,15 @@ applicationName
 
 contactEmail
   The email address of the person (or group) in charge of maintaining the Application
-  and provide support for it.
+  and providing support for it.
 
 about
-  A *very* short description on what the Application does. This will be displayed
+  A one-line description on what the Application does. This will be displayed
   below the title in the App card in the Repository.
 
 version
-  The current version of the application. As for the ``about`` field, the ``version``
-  is displayed in the App card in the Repository.
+  The current version of the application. ``version``
+  is also displayed in the App card in the Repository.
 
 .. _deploymentParameters:
 
@@ -421,8 +421,8 @@ deploymentParameters
   environment prepended with the suffix ``TF_VAR_`` to allow |terraform| to use
   them `directly <https://www.terraform.io/docs/configuration/variables.html#environment-variables.>`_.
   Values for the ``deploymentParameters`` variables are sourced at deployment time
-  from the :ref:`Deployment Parameters` referenced in the :ref:`Configuration` the
-  user picks.
+  from the :ref:`Deployment Parameters` referenced in the :ref:`Configuration` selected by the the
+  user.
 
 .. _inputs:
 
@@ -460,8 +460,8 @@ volumes
   batch system. The EBI Cloud Portal allows to completely separate the
   volumes lifecycle from the lifecycle of applications. Adding a volume
   name (i.e. ``DATA_DISK_ID`` in our previous example) to volumes
-  automatically displays on the deployment card a drop-down menu listing
-  all the volumes deployed through the portal. The id of the selected
+  automatically displays a drop-down menu listing all the volumes deployed
+  through the portal on the deployment card. The id of the selected
   volume (as provided by the cloud provider, not the portal internal id)
   is then injected into the deployment process as an environment variable
   (i.e. ``TF_VAR_DATA_DISK_ID`` in this case).
