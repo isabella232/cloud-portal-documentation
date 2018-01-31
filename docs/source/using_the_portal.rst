@@ -22,7 +22,7 @@ Your Cloud Profile contains all the information required to deploy your applicat
 `Deployment Parameters`_. `Cloud Credentials`_ are combined with a set of `Deployment Parameters`_ and a SSH public key to give the `Configuration`_ required to deploy a certain
 application in the cloud provider of choice.
 
-You can access your current `Cloud Profile`_ `here <|portal_base_url|/profile>`_ (You need to `log-in <|portal_base_url|/welcome/login>`_ first!)
+You can access your current `Cloud Profile`_ `here <|portal_base_url|/profile>`__ (You need to `log-in <|portal_base_url|/welcome/login>`_ first!)
 
 .. _cloud-credentials:
 
@@ -53,7 +53,7 @@ Add your `Cloud Credentials`_ like this:
 You can find this information in you `AWS <https://aws.amazon.com>`_ user page
 under the section ``IAM`` —> ``USERS`` (or via the official `docs <https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_access-keys.html>`_). ``AWS_DEFAULT_REGION`` is *optional* and can be omitted if the
 region is selected in another way (i.e. via a |terraform| variable specificied in the `Deployment Parameters`_). A list of the
-AWS regions can be found `here <https://docs.aws.amazon.com/general/latest/gr/rande.html>`_.
+AWS regions can be found `here <https://docs.aws.amazon.com/general/latest/gr/rande.html>`__.
 
 Azure
 ^^^^^
@@ -182,6 +182,9 @@ Specify a new configuration is very easy:
 -  choose one of the ``Deployment parameters`` that you have previously
    defined;
 -  (optionally) add a public SSH key.
+
+
+.. _inputs:
 
 Inputs
 ------
