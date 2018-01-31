@@ -24,6 +24,7 @@ application in the cloud provider of choice.
 
 You can access your current `Cloud Profile`_ `here <|portal_base_url|/profile>`_ (You need to `log-in <|portal_base_url|/welcome/login>`_ first!)
 
+.. _cloud-credentials:
 
 Cloud Credentials
 ~~~~~~~~~~~~~~~~~

@@ -562,6 +562,7 @@ destroy.sh, state.sh - and they must be placed in the folder containing the
 cloud provider specific codebase (you can have a look at the anatomy of a
 |project_name| App :ref:`here <app-structure>`).
 
+.. _deployment-environment:
 
 The deployment environment
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -576,6 +577,7 @@ variables in the deployment environment that you can use in your deploy scripts.
 There are two main set of variables the |project_name| injects: deployment
 variables and ssh management variables.
 
+.. _deployment-variables:
 Deployment variables
 ********************
 
@@ -836,24 +838,26 @@ a wrapper around the |terraform| state command. Here’s the usual example!
 Testing locally
 ~~~~~~~~~~~~~~~
 
-Especially at the beginning of the packaging process, it is very useful
-to test deployments locally. Keep also in mind that if your application
-fails to deploy in the portal, it might very hard to get a clear reason
-why that happened without access to the logs (which of course are
-*super-secret!*)
+While the |project_name| allows you to see the deployment logs (or, to be
+more precise, ``stdout`` and ``stderr`` of the deployment processes), it
+might be quicker, at least at the beginning of the packaging process, to
+test deployments locally.
 
-So, how to reproduce the Portal behaviour locally? First, you’ll need to
-install a few dependencies:
-|terraform|,|ansible| and
-`terraform-inventory <https://github.com/adammck/terraform-inventory>`__
+So, can you reproduce the Portal behaviour locally?
+
+
+First, you need to install a few dependencies:
+`Terraform <https://www.terraform.io/intro/getting-started/install.html>`_,
+`Ansible <http://docs.ansible.com/ansible/latest/intro_installation.html>`_ and
+`terraform-inventory <https://github.com/adammck/terraform-inventory>`_
 (click on the links to go to their respective “How-to install pages”).
-Second, you need to replicate the deployment environment. As you should
-have now understood, the only way the portal interacts with your
-deployments at the moment is setting *environment variables*.
-Reproducing this is very easy, thanks to
-`source <https://en.wikipedia.org/wiki/Source_(command)>`__!
 
-We can define a small file like this:
+Second, you need to replicate the :ref:`deployment environment <deployment-environment>`.
+As you know by now, the |project_name| interacts with the deployments setting
+(or *exporting*) variables in the deployment environment. Reproducing this
+behaviour in a consistent way is easy thanks to `source <https://en.wikipedia.org/wiki/Source_(command)>`__!
+
+Open a new text file in your preferred text editor, write something similar to:
 
 ::
 
@@ -866,56 +870,38 @@ We can define a small file like this:
     # Define the volume id of the volume to be linked to our deployment
     export TF_VAR_DATA_DISK_ID="vol-fb65c979"
 
-And then simply run ``source filename``. This will inject all the
-variables defined in the file into the bash environment (keep in mind
-that you’ll need to run again the command if you move to another
-terminal). At the bare minimum, you’ll need to export the three portal
-special variables (``PORTAL_DEPLOYMENTS_ROOT``,
+and then run ``source filename``. This will inject all the
+variables defined in the file into the bash environment, mimicking the |project_name|
+behaviour and saving you to manually export all the variables one by one.
+
+
+At the bare minimum, you’ll need to export the three
+:ref:`deployment variables <deployment-variables>` (``PORTAL_DEPLOYMENTS_ROOT``,
 ``PORTAL_DEPLOYMENT_REFERENCE`` and ``PORTAL_APP_REPO_FOLDER``) plus one
-variable for each input your application needs (remember to prepend it
-with ``TF_VAR_``).
+variable for each :ref:`deploymentParameter <manifest-deploymentParameters>` and
+:ref:`input <manifest-inputs>` your Application requires (``TF_VAR_DATA_DISK_ID``
+in our example above).
+
+.. note::
+  The |project_name| automatically prepends the ``TF_VAR_`` prefix to all
+  :ref:`deploymentParameters <manifest-deploymentParameters>` and
+  :ref:`inputs <manifest-inputs>`. You will most likely want to do the same
+  in your local script to ensure everything will work as expected when deploying
+  through the |project_name|
+
 
 Similarly, you need to source the credentials for the cloud provider you
-want to interact with. OpenStack allows you to download a pre-populated
-script to be sourced from its web interface, Horizon (exactly in “Access
-& Security” tab -> “API Access” subtab -> “Download OpenStack RC file”).
+want to interact with. You can find all the details on how to obtain your
+credentials, as well as the environment variables you need to export, in
+the :ref:`Cloud Credentials <cloud-credentials>` section.
 
-For AWS you’ll need to create your own script to be sourced, here’s an
-example:
+.. warning::
+  Environment variables are bound to a given terminal and not persisted between
+  restarts. If you want to use multiple terminals, or you close the terminal you
+  are testing your App with and open a new one, you'll need to `source` the
+  environment variables again.
 
-::
 
-    #!/bin/bash
-    export AWS_ACCESS_KEY_ID="your_access_key_id"
-    export AWS_SECRET_ACCESS_KEY="you_secret_access_key"
-
-Finally, for GCP you’ll need to download a JSON file from the `Google
-Developers Console <https://console.developers.google.com/>`__. Here’s
-the process step-by-step, as defined by the |terraform| documentation for
-the `GCP provider <https://www.terraform.io/docs/providers/google/>`__:
-
-1. Log into the Google Developers Console and select a project.
-
-2. The API Manager view should be selected, click on “Credentials” on
-   the left, then “Create credentials”, and finally “Service account
-   key”.
-
-3. Select “Compute Engine default service account” in the “Service
-   account” drop-down, and select “JSON” as the key type.
-
-4. Clicking “Create” will download your credentials.
-
-Once you have the file, you can easily define a one-line script to load
-its content in the appropriate env vars, as follows:
-
-::
-
-    #!/bin/bash
-    export GOOGLE_CREDENTIALS="`cat path/to/the/json/file.json`"
-
-At this point, invoking the various deployment scripts from the root of
-your repository (i.e. ./gcp/deploy.sh) should just work. **Happy
-packaging!**
 
 Portal usage
 ------------
