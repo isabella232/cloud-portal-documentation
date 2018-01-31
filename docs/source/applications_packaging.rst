@@ -446,6 +446,7 @@ inputs (Optional)
   As for the :ref:`deploymentParameters <manifest-deploymentParameters>`, all the values will
   be injected as environment variables with the ``TF_VAR`` prefix.
 
+.. _manifest-outputs:
 
 outputs (Optional)
   A list of the outputs the Application wants to show to the user.
@@ -578,6 +579,7 @@ There are two main set of variables the |project_name| injects: deployment
 variables and ssh management variables.
 
 .. _deployment-variables:
+
 Deployment variables
 ********************
 
