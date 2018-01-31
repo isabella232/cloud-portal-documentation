@@ -1,8 +1,9 @@
 Packaging Applications for the |project_name|
-===============================================
+=============================================
 
-.. note:: This document is still a **work in progress**. The |project_name| itself is still in very active development,
-          and while we strive to keep this document as in sync as possible there might be minor delays. Any comment or feedback is very appreciated!
+.. note:: The |project_name| is still in a very active development phase.
+          We strive to keep this documentation in sync with the |project_name|
+          developments, but there might be some minor delays.
 
 
 The |project_name| has been built to provide an App-Store-like
