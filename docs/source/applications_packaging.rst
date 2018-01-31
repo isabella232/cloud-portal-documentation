@@ -592,8 +592,9 @@ below:
 +-----------------------------------+-----------------------------------+
 | Environment variable              | Value                             |
 +===================================+===================================+
-| ``PORTAL_APP_REPO_FOLDER ``       | Path where the application code   |
-|                                   | is stored (e.g. the cloned repo). |
+| ``PORTAL_APP_REPO_FOLDER``        | Path where the application code   |
+|                                   | is stored (a copy of the cloned   |
+|                                   | repo).                            |
 |                                   |                                   |
 |                                   | Only available to deploy.sh and   |
 |                                   | destroy.sh, **not** to state.sh   |
