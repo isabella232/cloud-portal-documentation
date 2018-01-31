@@ -102,6 +102,7 @@ html_theme = "sphinx_rtd_theme"
 # so a file named "default.css" will overwrite the builtin "default.css".
 # html_static_path = ['_static']
 
+
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
 #
@@ -184,12 +185,18 @@ source_parsers = {
 
 source_suffix = ['.rst', '.md']
 github_doc_root = 'github.com/EMBL-EBI-TSI/cloud-portal-documentation/tree/dev/doc'
+
 def setup(app):
+    ## Support Markdown via recommonmark
     app.add_config_value('recommonmark_config', {
             'url_resolver': lambda url: github_doc_root + url,
             'auto_toc_tree_section': 'Contents',
             }, True)
     app.add_transform(AutoStructify)
+
+    ## Load stylesheet to fix non wrapping text in
+    ## tables
+    app.add_stylesheet("theme_overrides.css")
 
 
 # -- Add rst_epilog for common replacement via | |
