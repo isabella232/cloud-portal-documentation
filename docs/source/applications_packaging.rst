@@ -384,7 +384,7 @@ first
 Cloud provider independent bits
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-This part of the manifest deals with all the bits of information that are cloud provider
+This part of the manifest deals with all the information that is cloud provider
 *independent*, such as name of the App, maintainer, version, as well as inputs and outputs.
 While many of the fields are self-explanatory, here's a run down of all of them:
 
@@ -401,13 +401,13 @@ contactEmail (Required)
   and provide support for it. *Mandatory*
 
 about (Required)
-  A *very* short description on what the Application does. *Mandatory*
+  A one-line description on what the Application does. *Mandatory*
 
   This will be displayed below the title in the App card within the Repository.
 
 version (Required)
-  The current version of the application. As for the ``about`` field, the ``version``
-  is displayed in the App card in the Repository.
+  The current version of the application. This is also
+  displayed in the App card in the Repository.
 
 .. _manifest-deploymentParameters:
 
@@ -427,7 +427,7 @@ deploymentParameters (Optional)
   them `directly <https://www.terraform.io/docs/configuration/variables.html#environment-variables.>`_.
   Values for the ``deploymentParameters`` variables are sourced at deployment time
   from the :ref:`Deployment Parameters` referenced in the :ref:`configuration <Configuration>`
-  the user picks.
+  selected by the user.
 
 .. _manifest-inputs:
 
@@ -467,9 +467,9 @@ volumes (Optional)
   particular volume, that is then re-attached to an NFS server serving a
   batch system. The |project_name| allows to completely separate the
   volumes lifecycle from the lifecycle of applications. Adding a volume
-  name (i.e. ``DATA_DISK_ID``) to volumes automatically displays on the
-  deployment card a drop-down menu listing all the volumes deployed through the
-  |project_name|. The id of the selected volume (as provided by the cloud provider,
+  name (i.e. ``DATA_DISK_ID``) to volumes automatically displays a drop-down menu
+  listing all the volumes deployed through the |project_name| on the deployment card.
+  The id of the selected volume (as provided by the cloud provider,
   not the portal internal id!) is then injected into the deployment process as
   an environment variable (i.e. ``TF_VAR_DATA_DISK_ID`` in our example).
 
