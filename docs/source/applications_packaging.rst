@@ -215,11 +215,11 @@ tracked within a Git repository publicly clonable over the internet.
 This is a **fundamental** requirement, as the way the Portal imports
 applications in your Registry is cloning such repositories.
 
-Adopting Git as our main delivery mechanisms allowed us to easily track code
+Adopting Git as our main delivery mechanisms allows us to easily track code
 changes, keep ``dev`` and ``prod`` deployments separated in different branches,
-and provides a well-established approach to final users to further customise
+and provides a well-established approach for final users to further customise
 deployments above what initially foreseen by the App developer simply forking
-the original repository.
+the original repository and applying the required changes.
 
 The general structure
 ~~~~~~~~~~~~~~~~~~~~~
