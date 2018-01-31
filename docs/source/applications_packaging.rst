@@ -936,7 +936,7 @@ Deployment
     web interface queries the API for near real-time logs to let the user monitor
     the deployment.
 
-#.  The deployment environment monitors the ``deploy.sh`` script execution and
+#.  The deployment environment monitors the ``deploy.sh`` script execution and,
     if it fails (returns a non-zero exit code), updates the backend marking the
     deployment as ``DEPLOYMENT_FAILED`` and stops. The web interface regularly
     polls for updates and, once it detects the failure, offers the user the
