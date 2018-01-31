@@ -905,117 +905,94 @@ the :ref:`Cloud Credentials <cloud-credentials>` section.
   environment variables again.
 
 
+The deployment process: an end-to-end overview.
+-----------------------------------------------
 
-Portal usage
-------------
+We've explored how an App for the |project_name| should be packaged, and
+how the deployment process can be driven via the :ref:`deployment environment <deployment-environment>`.
+But what are all the steps the |project_name| takes every time it needs
+to deploy or destroy an application? How the ``deploy.sh`` and
+``destroy.sh`` scripts link into that?
 
-.. warning:: This section is deprecated.
-             Please refer to the :ref:`using-the-portal` section instead.
-
-Configuring repositories
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-Before deployments can be made, a user first has to configure portal
-repositories. These are application definitions which are later used for
-deployment purposes.
-
-Steps:
-
-1. User logs into EBI Cloud Portal.
-
-2. On the Dashboard, the user clicks on “Search Repositories” or selects
-   “Repository” from the left pane menu.
-
-3. Click on the “+” button on the right side of the screen.
-
-4. On the “Add application screen” user pastes public repo URL and
-   clicks “Add”.
-
-5. The application is added to your repository.
-
-The deployment process overview
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-So, eventually, what are the steps the portal takes every time it needs
-to deploy or destroy an application? And, how the ``deploy.sh`` and
-``destroy.sh`` scripts links into that?
+Let's lift the hood and have a look at all the operations the |project_name|
+carries out after an user has clicked the "Deploy" or "Destroy" buttons!
 
 Deployment
 ~~~~~~~~~~
 
-Here’s a step-by-step list of every operation the cloud portal performs
-to deploy an application:
+#.  After selecting the right :ref:`configuration <Configuration>` and
+    provided the required :ref:`inputs <inputs>`, a user clicks on the "Deploy"
+    button and confirms the deployment. The web application of the |project_name|
+    sends the request to the REST API and updates the status of the deployment
+    to ``STARTING``.
 
--  The user clicks the “Deploy” button on an application in the Portal,
-   after providing all the required inputs and selecting the cloud
-   provider. The web app sends the request to the API.
+#.  A new :ref:`deployment environment <deployment-environment>` is created,
+    injecting :ref:`cloud credentials <cloud-credentials>` and all the specified
+    :ref:`deployment parameters <manifest-deploymentParameters>`,
+    :ref:`inputs <inputs>` and :ref:`volumes <manifest-volumes>`.
 
--  The selected cloud provider is matched with the credentials in the
-   user profile. If a match is found, they are injected in the
-   deployment environment. If not match is found, the process exits with
-   an error that is reported back to the web app.
+#.  The ``deploy.sh`` script for the selected cloud provider is executed. Near
+    real-time logs are sent via the API to the web interface for the user to
+    monitor the deployment.
 
--  Input variables and the volume IDs, if present, are injected into the
-   environment.
+#.  The backend monitors the ``deploy.sh`` script execution and if it fails
+    (returns a non-zero exit code), the backend flags the deployment as
+    ``DEPLOYMENT_FAILED`` and stops. The information is sent to the web application
+    and the user is offered the choice to destroy the deployment.
 
--  The cloud-specific deploy.sh script is executed (e.g.
-   /root/gcp/deploy.sh).
+#.  If the ``deploy.sh`` script completes successfully, the backend executes
+    the ``state.sh`` script to capture a snapshot of the provisioned infrastructure
+    and looks for the defined :ref:`outputs <manifest-outputs>` in the log files.
+    If the ``state.sh`` script fails (returns with a non-zero exit code) the
+    backend updates the status of the deployment to ``RUNNING_FAILED`` and the
+    user is offered the choice to destroy the deployment. Otherwise, the
+    deployment is marked as ``RUNNING`` and outputs displayed in the web interface.
 
-   Internally, the ``deploy.sh`` script executes these steps:
-
-   1. Runs |terraform| to provision the resources according to the
-      pre-defined template
-
-   2. Runs |ansible| to apply the configuration on the provisioned VMs. An
-      |ansible| inventory is produced on the fly by terraform-inventory
-      starting from the |terraform| state file to feed |ansible| with the
-      IPs of the machine it needs to talk to, along with their logical
-      grouping
-
--  If the deployment script exits with a non-zero status (it fails), the
-   information is sent back to the web app and the process stops. If the
-   deployment script exits with a zero, the process continues
-
--  Executes the cloud-specific ``state.sh`` script, and looks for the
-   outputs defined in the manifest (if any)
-
--  Reports the outputs (if any) back to the web app
+#. Done!
 
 Destroy
 ~~~~~~~
 
-The destroy phase is usually much easier - in many cases it only
-consists of a single |terraform| call to tear down the resources. But how
-this works from the portal perspective?
+#.  The user clicks the "Destroy" button on the deployment card of a deployed App.
+    The web application sends a request to the REST API to terminate the destroy
+    the deployment.
 
-Again, here’s the list!
+#.  The same :ref:`deployment environment <deployment-environment>` that was
+    created to deploy the application is re-created to destroy it.
+    :ref:`Cloud credentials <cloud-credentials>`,
+    :ref:`deployment parameters <manifest-deploymentParameters>`,
+    :ref:`inputs <inputs>` and :ref:`volumes <manifest-volumes>` are added to
+    the environment. While :ref:`Cloud credentials <cloud-credentials>` needs
+    to be present for obvious reasons (you still need to prove that *you* is *you*
+    to remove your infrastructure!), all the other variables are added for two
+    reasons:
 
--  The user clicks the Destroy button on the web application. A request
-   to the API is fired to tear down the deployment
+    - support use-cases in which destroying the infrastructure requires information
+      coming from any of the :ref:`deployment parameters <manifest-deploymentParameters>`
+      or :ref:`inputs <inputs>` variable. Say you want to send some logs back
+      to a specific server and its hostname is stored as a
+      :ref:`deployment parameter <manifest-deploymentParameters>`
 
--  Credentials for the cloud provider hosting the deployment are
-   injected into the environment. If not match is found among the
-   credentials into the user profile, the process exits with an error
-   that is reported back to the web app.
+    - avoid issues when |terraform| variables normally sourced via environment
+      variables are not declared with a default value. If |terraform| is unable
+      to assigned the value of one of its variables in any of the
+      `supported ways <https://www.terraform.io/intro/getting-started/variables.html#assigning-variables>`_
+      then it will resolve to ask them interactively, which is of course a
+      scenario the |project_name| cannot support and will cause to deployment to
+      get stuck. App developer are warmly encouraged to use the ``--input=false``
+      `option <https://www.terraform.io/docs/commands/apply.html>`_ when invoking
+      |terraform| which would cause it to immediately fail if a variable cannot
+      be assigned in any way and not ask its value interactively.
 
--  Input variables and the volume IDs, if present, are injected into the
-   environment.
+#.  The cloud-specific ``destroy.sh`` script is executed and monitored. If it
+    fails (non-zero exit code) then the deployment is marked as
+    ``DESTROY_FAILED`` and the user will be offered the option of forcing
+    the destroy. If the ``destroy.sh`` script succeeds, the deployment is marked
+    as ``DESTROYED``.
 
--  The cloud-specific ``destroy.sh`` script is executed
-
-   Internally, the ``destroy.sh`` script executes a single step:
-
-   1. Runs |terraform| to destroy the resources, as they’re reported in
-      the state file
-
-   In some cases destroying a deployment may require some preliminary
-   steps, e.g. power the VMs off in advance with |ansible|. These needs
-   can simply be fulfilled by, for example, using a separate |ansible|
-   playbook to be executed before invoking Terraform. It is however
-   imperative that all the unneeded resources are removed at the of the
-   process, as users will not be able to remove them at a later time.
-
--  If the destroy script exits with a non-zero status (it fails), an
-   error is displayed by the web app and the process stops. On the
-   contrary, if the destroy script exits with a zero (success), the
-   deployment is removed by the web app and the process concludes.
+.. warning::
+    A deployment that ends in an irreversible ``DESTROY_FAILED`` state might,
+    depending on the stage at which the error occurs, leave some infrastructure
+    behind. It is **imperative** that users experiencing this issue
+    **independently** verify that all the provisioned infrastructure is correctly
+    removed.
