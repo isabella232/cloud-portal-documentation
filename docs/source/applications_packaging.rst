@@ -15,7 +15,7 @@ allows to reproducibily deploy virtual resources in one or multiple cloud provid
 in an highly automated way. The |project_name| builds on top of these tools
 to provide a resilient REST API and a web interface allowing users with little to
 no knowledge of IT management to easily self-provision the infrastructure they require.
-The process of wrapping infrastucture and workloads in an App that will be then
+The process of wrapping infrastructure and workloads in an App that will be then
 understood and deployed by the |project_name| is called *packaging*.
 
 .. _portal-tools:
@@ -142,14 +142,14 @@ themselves.
 
 .. note::
           Since version 2.0 |ansible| has added several modules to provision
-          virtual infrastucture as |terraform| does. However, |terraform| still
+          virtual infrastructure as |terraform| does. However, |terraform| still
           provides clear advantages, such as dependencies resolution, state
           tracking, and a much wider range of supported clouds. For these reasons,
           it still represents our preferred choice.
 
 .. warning::
           While there's nothing to stop you from using Ansible to provision the
-          virtual infrastucture required by your Application, doing so will prevent
+          virtual infrastructure required by your Application, doing so will prevent
           the |project_name| from tracking resource consumption as this feature
           relies on inspecting the |terraform| state file.
 
@@ -273,7 +273,7 @@ When deploying or destroying an Application, the |project_name| doesn't directly
 execute |terraform| or |ansible|, but executes the ``deploy.sh`` and ``destroy.sh``
 scripts that it expects to find in each folder dealing with a cloud provider deployment.
 A third script, ``state.sh``, is executed after the deployment succeeds to capture
-a snapshot of the deployed infrastucture. More details on how these scripts
+a snapshot of the deployed infrastructure. More details on how these scripts
 should be coded are available in the :ref:`deployment-scripts` section.
 
 
