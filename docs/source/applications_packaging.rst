@@ -588,16 +588,16 @@ below:
 +-----------------------------------+-----------------------------------+
 | Environment variable              | Value                             |
 +===================================+===================================+
-| PORTAL_APP_REPO_FOLDER            | Path where the application code   |
+| ``PORTAL_APP_REPO_FOLDER ``       | Path where the application code   |
 |                                   | is stored (e.g. the cloned repo). |
 |                                   |                                   |
 |                                   | Only available to deploy.sh and   |
 |                                   | destroy.sh, **not** to state.sh   |
 +-----------------------------------+-----------------------------------+
-| PORTAL_DEPLOYMENTS_ROOT           | Path to the folder storing all the|
+| ``PORTAL_DEPLOYMENTS_ROOT``       | Path to the folder storing all the|
 |                                   | deployments.                      |
 +-----------------------------------+-----------------------------------+
-| PORTAL_DEPLOYMENT_REFERENCE       | The unique ID assigned to the     |
+| ``PORTAL_DEPLOYMENT_REFERENCE``   | The unique ID assigned to the     |
 |                                   | deployment by the |project_name|  |
 |                                   | by the portal                     |
 +-----------------------------------+-----------------------------------+
