@@ -228,3 +228,19 @@ The ``manifest.json`` file contains a simple dictinary specifying, for example,
 the Application name and mainainer along with the supported Cloud Providers.
 Trying to add an Application repository that does not contain - or contains a
 malformed manifest file, will result in an error.
+
+Programmatic access (ecp-cli)
+--------------------------------
+To facilitate automated deployment and application tested, a command line tool is available to interact with the portal: [ecp-cli](https://github.com/EMBL-EBI-TSI/ecp-cli).
+
+To use, clone the repo; ecp.py is the main executable. First login by running
+
+``ecp.py login``
+
+This will take you through the Elixir login process that will authenticate you through the portal. Your token will be stored automatically. Next, you can e.g. list your applications by running:
+
+``ecp.py get deployments``
+
+The general syntax is `ecp.py *verb* *resource* [*name*]`, where verb is one of ``get`` ``create`` ``delete`` or ``stop`` (deployments only) and resource is one of ``cred`` ``param`` ``config`` ``app`` ``deployment`` ``logs`` ``destroylogs`` or ``status``.
+
+For more examples see the repo README.
