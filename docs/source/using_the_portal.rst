@@ -11,7 +11,7 @@ How to access the |portal_link|
 The |project_name| is available at the address https://cloud-portal.ebi.ac.uk.
 
 At the moment, users needs to sign-up for an |elixir| account to access the |portal_link|. You can easily obtain your |elixir| identity for free at the
-`ELIXIR sign-up page <https://www.elixir-europe.org/register>`_, and go to the |project_name| login page at https://cloud-portal.ebi.ac.uk/welcome/login.
+`ELIXIR sign-up page <https://www.elixir-europe.org/register>`_, and go to the |project_name| login page at https://cloud-portal.ebi.ac.uk/signon.
 
 .. _`Cloud Profile`:
 
