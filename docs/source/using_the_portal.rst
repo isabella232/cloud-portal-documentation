@@ -11,7 +11,7 @@ How to access the |portal_link|
 The |project_name| is available at the address https://cloud-portal.ebi.ac.uk.
 
 At the moment, users needs to sign-up for an |elixir| account to access the |portal_link|. You can easily obtain your |elixir| identity for free at the
-`ELIXIR sign-up page <https://www.elixir-europe.org/register>`_, and go to the |project_name| login page at https://cloud-portal.ebi.ac.uk/signon.
+`ELIXIR sign-up page <https://www.elixir-europe.org/register>`_, and go to the |project_name| login page at |portal_link|/signon.
 
 .. _`Cloud Profile`:
 
@@ -22,7 +22,7 @@ Your Cloud Profile contains all the information required to deploy your applicat
 `Deployment Parameters`_. `Cloud Credentials`_ are combined with a set of `Deployment Parameters`_ and a SSH public key to give the `Configuration`_ required to deploy a certain
 application in the cloud provider of choice.
 
-You can access your current `Cloud Profile`_ `here <|portal_base_url|/profile>`__ (You need to `log-in <|portal_base_url|/welcome/login>`_ first!)
+You can access your current `Cloud Profile`_ `here <|portal_link|/profile>`__ (You need to `log-in <|portal_link|/welcome/login>`_ first!)
 
 .. _cloud-credentials:
 
@@ -209,7 +209,7 @@ add one of the applications maintained by the TSI team:
 https://github.com/EMBL-EBI-TSI/cpa-instance
 
 Starting from the |project_name| Home:
-- Click `Application Repository <https://portal.tsi.ebi.ac.uk/repository>`_ in
+- Click `Application Repository <|portal_link|/repository>`_ in
 the menu on the left-hand side;
 - Click on the ``+`` button;
 - Enter the ``URL`` of the git repository;
