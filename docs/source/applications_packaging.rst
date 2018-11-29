@@ -13,7 +13,7 @@ Portal can orchestrate complex virtual infrastructures ranging from batch
 systems to *Pipeline-as-a-service* scenarios, where the limit is only set by the
 application developer. This approach, called `Infrastructure as Code <https://en.wikipedia.org/wiki/Infrastructure_as_Code>`_,
 allows to reproducibily deploy virtual resources in one or multiple cloud providers
-in an highly automated way. The |project_name| builds on top of these tools
+in a highly automated way. The |project_name| builds on top of these tools
 to provide a resilient REST API and a web interface allowing users with little to
 no knowledge of IT management to easily self-provision the infrastructure they require.
 The process of wrapping infrastructure and workloads in an App that will be then
