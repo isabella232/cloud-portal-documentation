@@ -13,6 +13,7 @@ Welcome to EMBL-EBI Cloud Portal's documentation!
    using_the_portal
    applications_packaging
    securing_credentials
+   api_endpoints
 
 
 
