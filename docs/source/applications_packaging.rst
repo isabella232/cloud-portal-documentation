@@ -620,6 +620,26 @@ easily obtained joining ``PORTAL_DEPLOYMENTS_ROOT`` and
 This will ensure that your state file will end up in the right place in the
 filesystem, enabling the |project_name| to parse it to obtain usage information.
 
+Endpoint variables
+******************
+
+There are :ref:`API endpoints <api_endpoints>`, that ECP exposes, that can be used
+by/from deployed applications. Following environment variables can be used to build
+HTTP requests.
+
++-----------------------------------+-----------------------------------+
+| Environment variable              | Value                             |
++===================================+===================================+
+| ``PORTAL_BASE_URL``               | Base url of the ECP API portal    |
+|                                   | for HTTP request.                 |
+|                                   |                                   |
++-----------------------------------+-----------------------------------+
+| ``PORTAL_CALLBACK_SECRET``        | Alpha numeric string which is     |
+|                                   | passed with http headers for      |
+|                                   | authentication.                   |
+|                                   |                                   |
++-----------------------------------+-----------------------------------+
+
 SSH variables
 *************
 
